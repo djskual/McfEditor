@@ -26,6 +26,9 @@ public partial class SettingsWindow : Window
         OpenWorkingFolderCheck.IsChecked = _workingCopy.OpenWorkingFolderAfterExtraction;
         DefaultOutputFolderTextBox.Text = _workingCopy.DefaultOutputFolder ?? string.Empty;
 
+        AutoCheckUpdatesCheck.IsChecked = _workingCopy.AutoCheckUpdatesOnStartup;
+        IncludePrereleaseCheck.IsChecked = _workingCopy.IncludePrereleaseVersionsInUpdateCheck;
+
         Loaded += (_, __) => ShowSection(0);
     }
 
@@ -42,6 +45,7 @@ public partial class SettingsWindow : Window
         GeneralPanel.Visibility = Visibility.Collapsed;
         PythonPanel.Visibility = Visibility.Collapsed;
         OutputPanel.Visibility = Visibility.Collapsed;
+        UpdatesPanel.Visibility = Visibility.Collapsed;
 
         switch (index)
         {
@@ -50,6 +54,9 @@ public partial class SettingsWindow : Window
                 break;
             case 2:
                 OutputPanel.Visibility = Visibility.Visible;
+                break;
+            case 3:
+                UpdatesPanel.Visibility = Visibility.Visible;
                 break;
             default:
                 GeneralPanel.Visibility = Visibility.Visible;
@@ -61,7 +68,7 @@ public partial class SettingsWindow : Window
         {
             From = 0.0,
             To = 1.0,
-            Duration = TimeSpan.FromMilliseconds(180)
+            Duration = TimeSpan.FromMilliseconds(220)
         };
         SectionHost.BeginAnimation(OpacityProperty, fade);
     }
@@ -97,6 +104,8 @@ public partial class SettingsWindow : Window
         _workingCopy.DefaultOutputFolder = string.IsNullOrWhiteSpace(DefaultOutputFolderTextBox.Text)
             ? null
             : DefaultOutputFolderTextBox.Text.Trim();
+        _workingCopy.AutoCheckUpdatesOnStartup = AutoCheckUpdatesCheck.IsChecked == true;
+        _workingCopy.IncludePrereleaseVersionsInUpdateCheck = IncludePrereleaseCheck.IsChecked == true;
 
         _workingCopy.Normalize();
         ResultSettings = _workingCopy.Clone();

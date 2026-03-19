@@ -2,6 +2,9 @@ namespace McfEditor.Settings;
 
 public sealed class AppSettings
 {
+    public bool AutoCheckUpdatesOnStartup { get; set; } = true;
+    public bool IncludePrereleaseVersionsInUpdateCheck { get; set; } = false; 
+
     public bool RememberWindowSizeAndPosition { get; set; } = true;
     public double? WindowWidth { get; set; }
     public double? WindowHeight { get; set; }
@@ -18,6 +21,8 @@ public sealed class AppSettings
     {
         return new AppSettings
         {
+            AutoCheckUpdatesOnStartup = AutoCheckUpdatesOnStartup,
+            IncludePrereleaseVersionsInUpdateCheck = IncludePrereleaseVersionsInUpdateCheck,
             RememberWindowSizeAndPosition = RememberWindowSizeAndPosition,
             WindowWidth = WindowWidth,
             WindowHeight = WindowHeight,

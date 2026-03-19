@@ -33,6 +33,7 @@
                     <ListBoxItem Content="General" IsSelected="True"/>
                     <ListBoxItem Content="Python backend"/>
                     <ListBoxItem Content="Output"/>
+                    <ListBoxItem Content="Updates"/>
                 </ListBox>
             </Border>
 
@@ -49,6 +50,7 @@
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,14"/>
                         <CheckBox x:Name="RememberWindowPlacementCheck"
+                                  Style="{StaticResource LabeledCheckBoxStyle}"
                                   Content="Remember window size and position"/>
                     </StackPanel>
 
@@ -70,6 +72,7 @@
                         </Grid>
 
                         <CheckBox x:Name="ParseImageIdMapCheck"
+                                  Style="{StaticResource LabeledCheckBoxStyle}"
                                   Content="Parse imageidmap.res automatically when present"
                                   Margin="0,14,0,0"/>
                     </StackPanel>
@@ -79,7 +82,9 @@
                                    FontSize="20"
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,14"/>
+
                         <CheckBox x:Name="OpenWorkingFolderCheck"
+                                  Style="{StaticResource LabeledCheckBoxStyle}"
                                   Content="Open working folder automatically after extraction"/>
 
                         <TextBlock Text="Default output folder"
@@ -94,6 +99,26 @@
                             <TextBox x:Name="DefaultOutputFolderTextBox" Grid.Column="0" Height="32" VerticalContentAlignment="Center"/>
                             <Button Grid.Column="2" Content="Browse" Click="BrowseOutputFolder_Click"/>
                         </Grid>
+                    </StackPanel>
+
+                    <StackPanel x:Name="UpdatesPanel" Visibility="Collapsed">
+                        <TextBlock Text="Updates"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,14"/>
+
+                        <CheckBox x:Name="AutoCheckUpdatesCheck"
+                                  Style="{StaticResource LabeledCheckBoxStyle}"
+                                  Content="Check for updates automatically at startup"/>
+
+                        <CheckBox x:Name="IncludePrereleaseCheck"
+                                  Style="{StaticResource LabeledCheckBoxStyle}"
+                                  Content="Include prerelease versions in update checks"
+                                  Margin="0,10,0,0"/>
+
+                        <TextBlock Margin="0,12,0,0"
+                                   Foreground="{DynamicResource AppMutedTextBrush}"
+                                   Text="When enabled, beta and prerelease versions are considered during update checks."/>
                     </StackPanel>
                 </Grid>
             </Border>

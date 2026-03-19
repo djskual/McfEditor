@@ -1,1 +1,1 @@
-fatal: not a git repository (or any of the parent directories): .git
+v0.0.1-beta.0
