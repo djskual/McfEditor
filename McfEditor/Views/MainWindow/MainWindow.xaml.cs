@@ -44,12 +44,25 @@ public partial class MainWindow : Window
         {
             _pythonFolder = ResolvePythonFolder();
             SetStatus("Ready");
-            
+            UpdateWindowTitle();
+
             if (AppSettingsStore.Current.AutoCheckUpdatesOnStartup)
                 await CheckForUpdatesAsync(silentIfUpToDate: true, silentOnError: true);
         };
 
         Closing += (_, __) => PersistWindowPlacementToSettings();
+    }
+
+    private void UpdateWindowTitle()
+    {
+        var version = GetBuildTag();
+
+        if (string.Equals(version, "unknown", StringComparison.OrdinalIgnoreCase))
+            version = "dev";
+
+        var dirtySuffix = (_project != null && _project.IsDirty) ? " *" : string.Empty;
+
+        Title = $"McfEditor {version}{dirtySuffix}";
     }
 
     private readonly struct TagVersion : IComparable<TagVersion>

@@ -10,6 +10,8 @@
 - Automatic update check on startup.
 
 ## Improved
+- Main window title now shows the current application version.
+- Added dirty state indicator in the window title when there are unsaved changes.
 
 ## Fixed
 - Fixed update settings checkboxes so their labels are displayed correctly.

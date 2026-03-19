@@ -36,6 +36,7 @@ public partial class MainWindow
         PreviewHintText.Text = "Open an MCF file to start.";
 
         ResetSelectionUi();
+        UpdateWindowTitle();
     }
 
     private void RefreshVisibleEntries()
@@ -52,15 +53,6 @@ public partial class MainWindow
         _visibleEntries.Clear();
         foreach (var entry in filtered)
             _visibleEntries.Add(entry);
-    }
-
-    private void UpdateWindowTitle()
-    {
-        var suffix = string.IsNullOrWhiteSpace(_project.SourceFilePath)
-            ? string.Empty
-            : $" - {Path.GetFileName(_project.SourceFilePath)}";
-
-        Title = "McfEditor" + suffix;
     }
 
     private static string CreateWorkingDirectory(string sourceFile)

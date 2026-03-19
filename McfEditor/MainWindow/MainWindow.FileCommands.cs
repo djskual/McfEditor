@@ -203,6 +203,7 @@ public partial class MainWindow
 
             _project.OutputFilePath = report.OutputFile;
             _project.IsDirty = false;
+            UpdateWindowTitle();
             SetStatus($"Rebuild finished: {Path.GetFileName(report.OutputFile)}");
 
             AppMessageBox.Show(
@@ -246,6 +247,7 @@ public partial class MainWindow
         entry.ReplacementPath = dialog.FileName;
         entry.IsModified = true;
         _project.IsDirty = true;
+        UpdateWindowTitle();
 
         UpdateSelectionUi(entry);
         RefreshPreview(entry);
@@ -261,6 +263,7 @@ public partial class MainWindow
         entry.IsModified = false;
 
         _project.IsDirty = _project.Entries.Any(x => x.IsModified);
+        UpdateWindowTitle();
 
         UpdateSelectionUi(entry);
         RefreshPreview(entry);
