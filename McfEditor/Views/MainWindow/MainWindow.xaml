@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:McfEditor"
         mc:Ignorable="d"
         Title="McfEditor"
-        Width="1500"
-        Height="920"
-        MinWidth="1280"
-        MinHeight="760"
+        Width="1100"
+        Height="700"
+        MinWidth="1100"
+        MinHeight="700"
         Background="{DynamicResource AppWindowBackgroundBrush}"
         Foreground="{DynamicResource AppTextBrush}">
 
@@ -164,18 +164,17 @@
                                 BorderThickness="1"
                                 CornerRadius="12"
                                 Padding="12">
-                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Auto">
-                                <Grid>
-                                    <Border Background="#FF20262E"
-                                            CornerRadius="8"
-                                            Padding="10">
-                                        <Image x:Name="PreviewImage"
-                                               Stretch="None"
-                                               SnapsToDevicePixels="True"/>
-                                    </Border>
-                                </Grid>
-                            </ScrollViewer>
+                            <Grid Background="Transparent">
+                                <Viewbox Stretch="Uniform"
+                                            StretchDirection="DownOnly"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                    <Image x:Name="PreviewImage"
+                                                Stretch="None"
+                                                SnapsToDevicePixels="True"
+                                                RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Viewbox>
+                            </Grid>
                         </Border>
 
                         <TextBlock Grid.Row="4"
