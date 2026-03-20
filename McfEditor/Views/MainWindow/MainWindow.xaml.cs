@@ -81,7 +81,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 await CheckForUpdatesAsync(silentIfUpToDate: true, silentOnError: true);
         };
 
-        Closing += (_, __) => PersistWindowPlacementToSettings();
+        Closing += (_, __) =>
+        {
+            PersistWindowPlacementToSettings();
+            PurgeTempRootDirectory();
+        };
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

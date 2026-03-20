@@ -9,6 +9,9 @@
 - Reduced the default startup window size.
 - Preview now automatically scales down large images to fit the viewer.
 - Small images are no longer upscaled in the preview.
+- McfEditor now purges its temporary working directory on application exit.
+- Temporary extraction files no longer accumulate in the user's temp folder.
+- Temporary working data is now cleaned before opening a new MCF project.
 
 ## Fixed
 

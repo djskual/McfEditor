@@ -125,4 +125,38 @@ public partial class MainWindow
 
         AppSettingsStore.Save(copy);
     }
+
+    private static string GetTempRootDirectory()
+    {
+        return Path.Combine(Path.GetTempPath(), "McfEditor");
+    }
+
+    private static void PurgeTempRootDirectory()
+    {
+        var root = GetTempRootDirectory();
+
+        if (!Directory.Exists(root))
+            return;
+
+        try
+        {
+            // Retire les attributs readonly éventuels avant suppression
+            foreach (var file in Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    File.SetAttributes(file, FileAttributes.Normal);
+                }
+                catch
+                {
+                }
+            }
+
+            Directory.Delete(root, recursive: true);
+        }
+        catch
+        {
+            // Best effort: on ne bloque pas la fermeture de l'appli
+        }
+    }
 }

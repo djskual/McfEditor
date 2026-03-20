@@ -78,6 +78,7 @@ public partial class MainWindow
         {
             SetBusy(true, "Extracting MCF...");
             ClearProject();
+            PurgeTempRootDirectory();
 
             var workingDir = CreateWorkingDirectory(sourceFile);
             var manifest = await _extractionService.ExtractAsync(
