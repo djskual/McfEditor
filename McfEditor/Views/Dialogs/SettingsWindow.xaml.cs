@@ -21,7 +21,6 @@ public partial class SettingsWindow : Window
         ResultSettings = _workingCopy.Clone();
 
         RememberWindowPlacementCheck.IsChecked = _workingCopy.RememberWindowSizeAndPosition;
-        PythonPathTextBox.Text = _workingCopy.PythonExecutablePath;
         UseImageIdMapWhenAvailableCheck.IsChecked = _workingCopy.UseImageIdMapWhenAvailable;
         AskBeforeUsingImageIdMapCheck.IsChecked = _workingCopy.AskBeforeUsingImageIdMap;
         OpenWorkingFolderCheck.IsChecked = _workingCopy.OpenWorkingFolderAfterExtraction;
@@ -44,14 +43,14 @@ public partial class SettingsWindow : Window
     private void ShowSection(int index)
     {
         GeneralPanel.Visibility = Visibility.Collapsed;
-        PythonPanel.Visibility = Visibility.Collapsed;
+        ExtractPanel.Visibility = Visibility.Collapsed;
         OutputPanel.Visibility = Visibility.Collapsed;
         UpdatesPanel.Visibility = Visibility.Collapsed;
 
         switch (index)
         {
             case 1:
-                PythonPanel.Visibility = Visibility.Visible;
+                ExtractPanel.Visibility = Visibility.Visible;
                 break;
             case 2:
                 OutputPanel.Visibility = Visibility.Visible;
@@ -74,19 +73,6 @@ public partial class SettingsWindow : Window
         SectionHost.BeginAnimation(OpacityProperty, fade);
     }
 
-    private void BrowsePython_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog
-        {
-            Title = "Choose python executable",
-            Filter = "Python executable|python.exe;py.exe|All files|*.*",
-            CheckFileExists = true
-        };
-
-        if (dialog.ShowDialog(this) == true)
-            PythonPathTextBox.Text = dialog.FileName;
-    }
-
     private void BrowseOutputFolder_Click(object sender, RoutedEventArgs e)
     {
         var folder = FolderPicker.PickFolder("Choose default output folder");
@@ -97,9 +83,6 @@ public partial class SettingsWindow : Window
     private void Save_Click(object sender, RoutedEventArgs e)
     {
         _workingCopy.RememberWindowSizeAndPosition = RememberWindowPlacementCheck.IsChecked == true;
-        _workingCopy.PythonExecutablePath = string.IsNullOrWhiteSpace(PythonPathTextBox.Text)
-            ? "python"
-            : PythonPathTextBox.Text.Trim();
         _workingCopy.UseImageIdMapWhenAvailable = UseImageIdMapWhenAvailableCheck.IsChecked == true;
         _workingCopy.AskBeforeUsingImageIdMap = AskBeforeUsingImageIdMapCheck.IsChecked == true;
         _workingCopy.OpenWorkingFolderAfterExtraction = OpenWorkingFolderCheck.IsChecked == true;

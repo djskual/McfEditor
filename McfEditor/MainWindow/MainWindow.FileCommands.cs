@@ -49,30 +49,6 @@ public partial class MainWindow
             return;
 
         var settings = AppSettingsStore.Current;
-        _pythonFolder = ResolvePythonFolder();
-
-        if (_pythonFolder == null)
-        {
-            AppMessageBox.Show(
-                this,
-                "Unable to locate the bundled Python scripts folder.",
-                "McfEditor",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-            return;
-        }
-
-        var extractScript = Path.Combine(_pythonFolder, "extract-mcf.py");
-        if (!File.Exists(extractScript))
-        {
-            AppMessageBox.Show(
-                this,
-                $"extract-mcf.py was not found in:{Environment.NewLine}{_pythonFolder}",
-                "McfEditor",
-                MessageBoxButton.OK,
-                MessageBoxImage.Error);
-            return;
-        }
 
         try
         {
@@ -103,11 +79,9 @@ public partial class MainWindow
             }
 
             var manifest = await _extractionService.ExtractAsync(
-                settings.PythonExecutablePath,
-                extractScript,
-                sourceFile,
-                workingDir,
-                useImageIdMap);
+                                 sourceFile,
+                                 workingDir,
+                                 useImageIdMap);
 
             _project.SourceFilePath = sourceFile;
             _project.WorkingDirectory = manifest.WorkingDirectory;
@@ -216,16 +190,10 @@ public partial class MainWindow
             SetBusy(true, "Preparing rebuild...");
             PrepareReplacementFiles();
 
-            var compressScript = Path.Combine(_pythonFolder ?? ResolvePythonFolder() ?? string.Empty, "compress-mcf.py");
-            if (!File.Exists(compressScript))
-                throw new FileNotFoundException("compress-mcf.py was not found.", compressScript);
-
             var report = await _compressionService.RebuildAsync(
-                AppSettingsStore.Current.PythonExecutablePath,
-                compressScript,
-                _project.SourceFilePath,
-                dialog.FileName,
-                Path.Combine(_project.WorkingDirectory, "Unsorted"));
+            _project.SourceFilePath,
+            dialog.FileName,
+            Path.Combine(_project.WorkingDirectory, "Unsorted"));
 
             _project.OutputFilePath = report.OutputFile;
             _project.IsDirty = false;

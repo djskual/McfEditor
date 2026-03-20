@@ -31,7 +31,7 @@
                 <ListBox x:Name="SectionList"
                          SelectionChanged="SectionList_SelectionChanged">
                     <ListBoxItem Content="General" IsSelected="True"/>
-                    <ListBoxItem Content="Python backend"/>
+                    <ListBoxItem Content="Extraction"/>
                     <ListBoxItem Content="Output"/>
                     <ListBoxItem Content="Updates"/>
                 </ListBox>
@@ -54,23 +54,11 @@
                                   Content="Remember window size and position"/>
                     </StackPanel>
 
-                    <StackPanel x:Name="PythonPanel" Visibility="Collapsed">
-                        <TextBlock Text="Python backend"
+                    <StackPanel x:Name="ExtractPanel" Visibility="Collapsed">
+                        <TextBlock Text="Extraction"
                                    FontSize="20"
                                    FontWeight="SemiBold"
                                    Margin="0,0,0,14"/>
-                        <TextBlock Text="Python executable"
-                                   Foreground="{DynamicResource AppMutedTextBrush}"/>
-                        <Grid Margin="0,6,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="90"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBox x:Name="PythonPathTextBox" Grid.Column="0" Height="32" VerticalContentAlignment="Center"/>
-                            <Button Grid.Column="2" Content="Browse" Click="BrowsePython_Click"/>
-                        </Grid>
-
                         <CheckBox x:Name="UseImageIdMapWhenAvailableCheck"
                                   Style="{StaticResource LabeledCheckBoxStyle}"
                                   Content="Use imageidmap.res when available"

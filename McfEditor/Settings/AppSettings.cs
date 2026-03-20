@@ -9,7 +9,6 @@ public sealed class AppSettings
     public double? WindowHeight { get; set; }
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
-    public string PythonExecutablePath { get; set; } = "python";
     public bool UseImageIdMapWhenAvailable { get; set; } = true;
     public bool AskBeforeUsingImageIdMap { get; set; } = false; 
     public bool OpenWorkingFolderAfterExtraction { get; set; } = false;
@@ -27,7 +26,6 @@ public sealed class AppSettings
             WindowHeight = WindowHeight,
             WindowLeft = WindowLeft,
             WindowTop = WindowTop,
-            PythonExecutablePath = PythonExecutablePath,
             UseImageIdMapWhenAvailable = UseImageIdMapWhenAvailable,
             AskBeforeUsingImageIdMap = AskBeforeUsingImageIdMap,
             OpenWorkingFolderAfterExtraction = OpenWorkingFolderAfterExtraction,
@@ -38,11 +36,6 @@ public sealed class AppSettings
 
     public void Normalize()
     {
-        if (string.IsNullOrWhiteSpace(PythonExecutablePath))
-            PythonExecutablePath = "python";
-        else
-            PythonExecutablePath = PythonExecutablePath.Trim();
-
         if (string.IsNullOrWhiteSpace(DefaultOutputFolder))
             DefaultOutputFolder = null;
         else

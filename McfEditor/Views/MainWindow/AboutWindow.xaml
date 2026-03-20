@@ -33,7 +33,7 @@
                 <TextBlock Text="Current status:"
                            Margin="0,18,0,6"
                            FontWeight="SemiBold"/>
-                <TextBlock Text="• Open an MCF file&#x0a;• Extract all images through Python backend&#x0a;• Preview and replace PNGs&#x0a;• Rebuild a new MCF file&#x0a;• Settings, release script and notes included"
+                <TextBlock Text="• Open an MCF file&#x0a;• Extract all images&#x0a;• Preview and replace PNGs&#x0a;• Rebuild a new MCF file&#x0a;• Settings, release script and notes included"
                            TextWrapping="Wrap"/>
             </StackPanel>
         </Border>

@@ -10,7 +10,7 @@ This first package already includes:
 
 - the same dark theme base as GcaEditor
 - a similar solution layout and release workflow
-- MCF extraction through a bundled Python backend
+- MCF extraction
 - image list + search
 - preview panel
 - replace / restore workflow
@@ -33,7 +33,6 @@ McfEditor/
     ├── IO/
     ├── MainWindow/
     ├── Models/
-    ├── Python/
     ├── Settings/
     ├── Themes/
     ├── UI/
@@ -45,29 +44,21 @@ McfEditor/
 
 - Visual Studio 2022
 - .NET 8 SDK
-- Python 3 installed on your machine
-- Pillow installed in the Python environment used by the app
-
-Install Pillow with:
-
-```powershell
-pip install Pillow
-```
 
 ## First run
 
 1. Open `McfEditor.sln` in Visual Studio 2022.
 2. Restore NuGet packages if Visual Studio asks.
 3. Build and run the project.
-4. Open **Settings** and verify the Python executable path if needed.
-5. Open an `.mcf` file.
-6. The app extracts images into a temporary working folder.
-7. Replace one or more `img_<index>.png` files through the UI.
-8. Rebuild a new `.mcf`.
+4. Open an `.mcf` file.
+5. The app extracts images into a temporary working folder.
+6. Replace one or more `img_<index>.png` files through the UI.
+7. Rebuild a new `.mcf`.
 
 ## Notes
 
-- The bundled Python scripts were adapted to be **non-interactive** and now produce JSON reports for the WPF frontend.
+McfEditor now uses a fully native C# backend for MCF extraction, imageidmap parsing and rebuild.
+No external Python installation is required.
 - This package is meant as a **clean starting point**, not a finished editor.
 - I could not compile-test the project in this environment, so the first Visual Studio pass should be treated as the real validation step.
 

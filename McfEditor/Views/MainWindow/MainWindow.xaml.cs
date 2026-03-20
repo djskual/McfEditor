@@ -34,7 +34,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly ObservableCollection<McfImageEntry> _visibleEntries = new();
     private readonly ObservableCollection<ExplorerNode> _explorerNodes = new();
     private readonly McfProject _project = new();
-    private string? _pythonFolder;
     private bool _isBusy;
 
     private readonly UndoRedoManager _undoRedoManager = new();
@@ -74,7 +73,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         Loaded += async (_, __) =>
         {
-            _pythonFolder = ResolvePythonFolder();
             SetStatus("Ready");
             UpdateWindowTitle();
             RefreshUndoRedoUi();
