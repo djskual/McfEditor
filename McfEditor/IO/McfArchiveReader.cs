@@ -7,9 +7,10 @@ namespace McfEditor.IO;
 public static class McfArchiveReader
 {
     public static ExtractionManifest Extract(
-        string sourceFile,
-        string outputFolder,
-        bool useImageIdMap)
+    string sourceFile,
+    string outputFolder,
+    bool useImageIdMap,
+    IProgress<ProgressInfo>? progress = null)
     {
         Directory.CreateDirectory(outputFolder);
 
@@ -108,6 +109,11 @@ public static class McfArchiveReader
                 RelativePath = relativePath,
                 DisplayName = string.IsNullOrWhiteSpace(mappedPath) ? fileName : mappedPath
             });
+
+            double percent = numFiles <= 0 ? 0 : ((imageId + 1) * 100.0 / numFiles);
+            progress?.Report(new ProgressInfo(
+                $"Extracting image {imageId + 1}/{numFiles}...",
+                percent));
 
             offset += zsize + 40;
         }

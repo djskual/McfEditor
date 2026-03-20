@@ -7,9 +7,10 @@ namespace McfEditor.IO;
 public static class McfArchiveWriter
 {
     public static CompressionReport Rebuild(
-        string originalFile,
-        string outputFile,
-        string imagesDirectory)
+    string originalFile,
+    string outputFile,
+    string imagesDirectory,
+    IProgress<ProgressInfo>? progress = null)
     {
         var data = File.ReadAllBytes(originalFile);
 
@@ -101,6 +102,11 @@ public static class McfArchiveWriter
                 bw.Write(offsetNew);
                 bw.Write(zsize + 40);
             }
+
+            double percent = numFiles <= 0 ? 0 : ((imageId + 1) * 100.0 / numFiles);
+            progress?.Report(new ProgressInfo(
+                $"Rebuilding image {imageId + 1}/{numFiles}...",
+                percent));
 
             offsetOriginal += originalZsize + 40;
             offsetNew += zsize + 40;

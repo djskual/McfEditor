@@ -8,11 +8,13 @@ public sealed class McfCompressionService
         string originalFile,
         string outputFile,
         string imagesDirectory,
+        IProgress<ProgressInfo>? progress = null,
         CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var report = McfArchiveWriter.Rebuild(originalFile, outputFile, imagesDirectory);
-        return Task.FromResult(report);
+        return Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return McfArchiveWriter.Rebuild(originalFile, outputFile, imagesDirectory, progress);
+        }, cancellationToken);
     }
 }

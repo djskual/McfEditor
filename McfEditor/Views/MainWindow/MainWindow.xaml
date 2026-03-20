@@ -15,7 +15,8 @@
         Foreground="{DynamicResource AppTextBrush}">
 
     <DockPanel>
-        <Menu DockPanel.Dock="Top"
+        <Menu x:Name="MainMenu"
+              DockPanel.Dock="Top"
               Background="{DynamicResource AppPanelBrush}"
               Foreground="{DynamicResource AppTextBrush}">
             <MenuItem Header="_File">
@@ -55,51 +56,49 @@
             </MenuItem>
         </Menu>
 
-        <StatusBar DockPanel.Dock="Bottom"
-                   Background="{DynamicResource AppPanelBrush}"
-                   Foreground="{DynamicResource AppTextBrush}">
-            <StatusBarItem>
-                <TextBlock x:Name="StatusTextBlock" Text="Ready"/>
-            </StatusBarItem>
-        </StatusBar>
+        <Border DockPanel.Dock="Bottom"
+                Margin="12,0,12,12"
+                Padding="10,8"
+                Background="{DynamicResource AppPanelBrush}"
+                BorderBrush="{DynamicResource AppBorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <Grid>
+                <TextBlock x:Name="StatusTextBlock"
+                           Grid.Row="0"
+                           Text="Ready"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource AppTextBrush}"/>
+                <Border x:Name="ProgressHost"
+                        Grid.Row="1"
+                        Height="8"
+                        Margin="0,8,0,0"
+                        Background="#24303A"
+                        BorderBrush="#32414E"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        Visibility="Collapsed"
+                        ClipToBounds="True">
+                    <Border x:Name="ProgressFill"
+                            Width="0"
+                            HorizontalAlignment="Left"
+                            Background="#35C46A"
+                            CornerRadius="4"/>
+                </Border>
+            </Grid>
+        </Border>
+
+        <Grid x:Name="ContentRoot">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0"
-                    Margin="12,12,12,0"
-                    Background="{DynamicResource AppPanelBrush}"
-                    BorderBrush="{DynamicResource AppBorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="14"
-                    Padding="12">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="240"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Grid.Column="0" Content="Open MCF" Click="OpenMcf_Click"/>
-                    <TextBox x:Name="SearchBox"
-                             Grid.Column="2"
-                             Height="34"
-                             VerticalContentAlignment="Center"
-                             ToolTip="Search by index or name"
-                             TextChanged="SearchBox_TextChanged"/>
-                    <StackPanel Grid.Column="4" Orientation="Horizontal">
-                        <Button Content="Extract / reload" Margin="0,0,8,0" Click="ExtractAll_Click"/>
-                        <Button Content="Rebuild MCF" Click="RebuildMcf_Click"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Grid Grid.Row="1" Margin="12">
+            <Grid Grid.Row="0" Margin="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="360"/>
                     <ColumnDefinition Width="8"/>
@@ -133,23 +132,23 @@
 
                         <GroupBox Grid.Row="2" Header="Images">
                             <Border Background="{DynamicResource AppPanelAltBrush}"
-        BorderBrush="{DynamicResource AppBorderBrush}"
-        BorderThickness="1"
-        CornerRadius="10"
-        Padding="4"
-        SnapsToDevicePixels="True">
+                                    BorderBrush="{DynamicResource AppBorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="4"
+                                    SnapsToDevicePixels="True">
                                 <TreeView x:Name="ImagesTreeView"
-              ItemsSource="{Binding ExplorerNodes}"
-              SelectedItemChanged="ImagesTreeView_SelectedItemChanged"
-              Style="{StaticResource DarkTreeViewStyle}">
+                                          ItemsSource="{Binding ExplorerNodes}"
+                                          SelectedItemChanged="ImagesTreeView_SelectedItemChanged"
+                                          Style="{StaticResource DarkTreeViewStyle}">
                                     <TreeView.Resources>
                                         <HierarchicalDataTemplate DataType="{x:Type models:ExplorerNode}"
-                                      ItemsSource="{Binding Children}">
+                                                                  ItemsSource="{Binding Children}">
                                             <StackPanel Orientation="Horizontal">
                                                 <Image Width="16"
-                           Height="16"
-                           Margin="0,0,6,0"
-                           VerticalAlignment="Center">
+                                                       Height="16"
+                                                       Margin="0,0,6,0"
+                                                       VerticalAlignment="Center">
                                                     <Image.Style>
                                                         <Style TargetType="Image">
                                                             <Setter Property="Source" Value="/Assets/image.png"/>
@@ -163,15 +162,15 @@
                                                 </Image>
 
                                                 <TextBlock Text="{Binding Name}"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource AppTextBrush}"/>
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{StaticResource AppTextBrush}"/>
                                             </StackPanel>
                                         </HierarchicalDataTemplate>
                                     </TreeView.Resources>
 
                                     <TreeView.ItemContainerStyle>
                                         <Style TargetType="TreeViewItem"
-                   BasedOn="{StaticResource DarkTreeViewItemStyle}">
+                                               BasedOn="{StaticResource DarkTreeViewItemStyle}">
                                             <Setter Property="IsExpanded"
                         Value="{Binding IsExpanded, Mode=TwoWay}"/>
                                             <Setter Property="IsSelected"

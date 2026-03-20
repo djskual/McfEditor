@@ -8,11 +8,13 @@ public sealed class McfExtractionService
         string sourceFile,
         string outputFolder,
         bool useImageIdMap,
+        IProgress<ProgressInfo>? progress = null,
         CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var manifest = McfArchiveReader.Extract(sourceFile, outputFolder, useImageIdMap);
-        return Task.FromResult(manifest);
+        return Task.Run(() =>
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return McfArchiveReader.Extract(sourceFile, outputFolder, useImageIdMap, progress);
+        }, cancellationToken);
     }
 }

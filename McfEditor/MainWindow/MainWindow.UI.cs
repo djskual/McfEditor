@@ -10,11 +10,6 @@ public partial class MainWindow
 {
     private McfImageEntry? _selectedEntry; 
 
-    private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        RefreshVisibleEntries();
-    }
-
     private void ImagesTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (e.NewValue is ExplorerNode node && !node.IsFolder && node.Entry is not null)
@@ -112,5 +107,47 @@ public partial class MainWindow
             UpdateSelectionUi(_selectedEntry!);
             RefreshPreview(_selectedEntry!);
         }
+    }
+
+    private ExplorerNode? FindNodeForEntry(IEnumerable<ExplorerNode> nodes, McfImageEntry entry)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.Entry == entry)
+                return node;
+
+            var child = FindNodeForEntry(node.Children, entry);
+            if (child is not null)
+                return child;
+        }
+
+        return null;
+    }
+
+    private void SelectNodeForEntry(McfImageEntry entry)
+    {
+        var node = FindNodeForEntry(_explorerNodes, entry);
+        if (node is null)
+            return;
+
+        ExpandParentsForNode(_explorerNodes, entry);
+        node.IsSelected = true;
+    }
+
+    private bool ExpandParentsForNode(IEnumerable<ExplorerNode> nodes, McfImageEntry entry)
+    {
+        foreach (var node in nodes)
+        {
+            if (node.Entry == entry)
+                return true;
+
+            if (ExpandParentsForNode(node.Children, entry))
+            {
+                node.IsExpanded = true;
+                return true;
+            }
+        }
+
+        return false;
     }
 }

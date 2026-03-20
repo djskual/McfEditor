@@ -26,10 +26,6 @@
                 <TextBlock Text="MCF extraction, preview and rebuild tool for MIB2 image archives."
                            Margin="0,8,0,0"
                            TextWrapping="Wrap"/>
-                <TextBlock Text="Startup package based on your GcaEditor project structure and dark theme."
-                           Margin="0,14,0,0"
-                           Foreground="{DynamicResource AppMutedTextBrush}"
-                           TextWrapping="Wrap"/>
                 <TextBlock Text="Current status:"
                            Margin="0,18,0,6"
                            FontWeight="SemiBold"/>

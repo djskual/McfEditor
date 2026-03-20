@@ -1,15 +1,41 @@
-using McfEditor.Settings;
 using McfEditor.Models;
+using McfEditor.Settings;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
 
 namespace McfEditor;
 
 public partial class MainWindow
 {
+    private void ShowProgress(string status, double percent)
+    {
+        StatusTextBlock.Text = status;
+        ProgressHost.Visibility = Visibility.Visible;
+
+        ProgressHost.UpdateLayout();
+
+        double hostWidth = ProgressHost.ActualWidth;
+        if (hostWidth <= 0)
+            hostWidth = 220;
+
+        double clamped = Math.Max(0, Math.Min(100, percent));
+        ProgressFill.Width = hostWidth * (clamped / 100.0);
+
+        Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Background);
+    }
+
+    private void HideProgress(string status = "Ready")
+    {
+        StatusTextBlock.Text = status;
+        ProgressFill.Width = 0;
+        ProgressHost.Visibility = Visibility.Collapsed;
+    }
+
     private void RebuildExplorerTree(IEnumerable<McfImageEntry> entries)
     {
         _explorerNodes.Clear();
@@ -83,8 +109,22 @@ public partial class MainWindow
         _isBusy = isBusy;
         Cursor = isBusy ? System.Windows.Input.Cursors.Wait : null;
 
-        if (!string.IsNullOrWhiteSpace(message))
-            SetStatus(message);
+        MainMenu.IsEnabled = !isBusy;
+        ContentRoot.IsEnabled = !isBusy;
+
+        CommandManager.InvalidateRequerySuggested();
+
+        if (isBusy)
+        {
+            if (!string.IsNullOrWhiteSpace(message))
+                ShowProgress(message, 0);
+            else
+                ShowProgress("Working...", 0);
+        }
+        else
+        {
+            HideProgress(StatusTextBlock.Text);
+        }
     }
 
     private void SetStatus(string message)
@@ -115,16 +155,10 @@ public partial class MainWindow
 
     private void RefreshVisibleEntries()
     {
-        var query = SearchBox.Text?.Trim() ?? string.Empty;
         var filtered = _project.Entries
-        .Where(x =>
-            string.IsNullOrWhiteSpace(query)
-            || x.Index.ToString().Contains(query, StringComparison.OrdinalIgnoreCase)
-            || x.DisplayName.Contains(query, StringComparison.OrdinalIgnoreCase)
-            || x.RelativePath.Contains(query, StringComparison.OrdinalIgnoreCase))
-        .OrderBy(x => string.IsNullOrWhiteSpace(x.RelativePath) ? x.FileName : x.RelativePath,
-                 StringComparer.OrdinalIgnoreCase)
-        .ToList();
+            .OrderBy(x => string.IsNullOrWhiteSpace(x.RelativePath) ? x.FileName : x.RelativePath,
+                     StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
         RebuildExplorerTree(filtered);
     }
@@ -146,21 +180,6 @@ public partial class MainWindow
         update(copy);
         copy.Normalize();
         return copy;
-    }
-
-    private string? ResolvePythonFolder()
-    {
-        var baseDir = AppContext.BaseDirectory;
-        var candidates = new[]
-        {
-            Path.Combine(baseDir, "Python"),
-            Path.Combine(baseDir, "..", "..", "..", "Python"),
-            Path.Combine(baseDir, "..", "..", "..", "..", "Python")
-        };
-
-        return candidates
-            .Select(Path.GetFullPath)
-            .FirstOrDefault(Directory.Exists);
     }
 
     private void ApplyWindowPlacementFromSettings()

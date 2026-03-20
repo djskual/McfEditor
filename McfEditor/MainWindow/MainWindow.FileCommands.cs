@@ -1,3 +1,4 @@
+using McfEditor.IO;
 using McfEditor.Models;
 using McfEditor.Settings;
 using McfEditor.UI.Dialogs;
@@ -53,6 +54,7 @@ public partial class MainWindow
         try
         {
             SetBusy(true, "Extracting MCF...");
+            ShowProgress("Preparing extraction...", 0);
             ClearProject();
             PurgeTempRootDirectory();
 
@@ -78,10 +80,16 @@ public partial class MainWindow
                 }
             }
 
+            var progress = new Progress<ProgressInfo>(p =>
+            {
+                ShowProgress(p.Message, p.Percent);
+            });
+            
             var manifest = await _extractionService.ExtractAsync(
                                  sourceFile,
                                  workingDir,
-                                 useImageIdMap);
+                                 useImageIdMap,
+                                 progress);
 
             _project.SourceFilePath = sourceFile;
             _project.WorkingDirectory = manifest.WorkingDirectory;
@@ -108,9 +116,9 @@ public partial class MainWindow
             RefreshUndoRedoUi();
 
             if (manifest.Warnings.Count > 0)
-                SetStatus($"Loaded with {manifest.Warnings.Count} warning(s).");
+                HideProgress($"Loaded with {manifest.Warnings.Count} warning(s).");
             else
-                SetStatus($"Loaded {manifest.ImageCount} image(s).");
+                HideProgress($"Loaded {manifest.ImageCount} image(s).");
 
             SelectFirstImageNode();
 
@@ -125,7 +133,7 @@ public partial class MainWindow
                 "Extraction failed",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
-            SetStatus("Extraction failed.");
+            HideProgress("Extraction failed.");
         }
         finally
         {
@@ -135,11 +143,17 @@ public partial class MainWindow
 
     private async void OpenMcf_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+
         await OpenMcfAsync();
     }
 
     private async void ExtractAll_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+        
         if (string.IsNullOrWhiteSpace(_project.SourceFilePath))
         {
             await OpenMcfAsync();
@@ -188,12 +202,19 @@ public partial class MainWindow
         try
         {
             SetBusy(true, "Preparing rebuild...");
+            ShowProgress("Preparing rebuild...", 0);
             PrepareReplacementFiles();
 
+            var progress = new Progress<ProgressInfo>(p =>
+            {
+                ShowProgress(p.Message, p.Percent);
+            });
+            
             var report = await _compressionService.RebuildAsync(
             _project.SourceFilePath,
             dialog.FileName,
-            Path.Combine(_project.WorkingDirectory, "Unsorted"));
+            Path.Combine(_project.WorkingDirectory, "Unsorted"),
+            progress);
 
             _project.OutputFilePath = report.OutputFile;
             _project.IsDirty = false;
@@ -225,6 +246,9 @@ public partial class MainWindow
 
     private void ReplaceImage_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+
         if (ImagesTreeView.SelectedItem is not ExplorerNode node || node.IsFolder || node.Entry is null)
             return;
 
@@ -249,15 +273,21 @@ public partial class MainWindow
 
         _undoRedoManager.Execute(action);
 
-        RefreshDirtyState();
-        RefreshSelectedEntryUi();
-        SetStatus($"Replacement selected for image #{entry.Index}");
+        _selectedEntry = entry;
+        UpdateSelectionUi(entry);
+        RefreshPreview(entry);
+        SelectNodeForEntry(entry);
 
+        RefreshDirtyState();
         RefreshUndoRedoUi();
+        SetStatus($"Replacement selected for image #{entry.Index}");
     }
 
     private void RestoreImage_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+
         if (ImagesTreeView.SelectedItem is not ExplorerNode node || node.IsFolder || node.Entry is null)
             return;
 
@@ -275,15 +305,21 @@ public partial class MainWindow
 
         _undoRedoManager.Execute(action);
 
-        RefreshDirtyState();
-        RefreshSelectedEntryUi();
-        SetStatus($"Image #{entry.Index} restored to original");
+        _selectedEntry = entry;
+        UpdateSelectionUi(entry);
+        RefreshPreview(entry);
+        SelectNodeForEntry(entry);
 
+        RefreshDirtyState();
         RefreshUndoRedoUi();
+        SetStatus($"Image #{entry.Index} restored to original");
     }
 
     private void OpenWorkingFolder_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+
         if (string.IsNullOrWhiteSpace(_project.WorkingDirectory) || !Directory.Exists(_project.WorkingDirectory))
         {
             AppMessageBox.Show(
@@ -304,11 +340,17 @@ public partial class MainWindow
 
     private void Exit_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+        
         Close();
     }
 
     private void Settings_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+        
         var window = new SettingsWindow(AppSettingsStore.Current)
         {
             Owner = this
@@ -320,6 +362,9 @@ public partial class MainWindow
 
     private void About_Click(object sender, RoutedEventArgs e)
     {
+        if (_isBusy)
+            return;
+
         new AboutWindow
         {
             Owner = this

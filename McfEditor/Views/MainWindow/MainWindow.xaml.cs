@@ -136,12 +136,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void Undo_CommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
-        e.CanExecute = _undoRedoManager.CanUndo;
+        e.CanExecute = !_isBusy && _undoRedoManager.CanUndo;
     }
 
     private void Redo_CommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
-        e.CanExecute = _undoRedoManager.CanRedo;
+        e.CanExecute = !_isBusy && _undoRedoManager.CanRedo;
     }
 
     private void Undo_CommandExecuted(object sender, ExecutedRoutedEventArgs e)
@@ -159,11 +159,24 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (!_undoRedoManager.CanUndo)
             return;
 
+        var currentEntry = _selectedEntry;
+
         _undoRedoManager.Undo();
         RefreshDirtyState();
-        RefreshSelectedEntryUi();
-        SetStatus("Undo applied");
 
+        if (currentEntry is not null)
+        {
+            _selectedEntry = currentEntry;
+            UpdateSelectionUi(currentEntry);
+            RefreshPreview(currentEntry);
+            SelectNodeForEntry(currentEntry);
+        }
+        else
+        {
+            RefreshSelectedEntryUi();
+        }
+
+        SetStatus("Undo applied");
         RefreshUndoRedoUi();
     }
 
@@ -172,11 +185,24 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         if (!_undoRedoManager.CanRedo)
             return;
 
+        var currentEntry = _selectedEntry;
+
         _undoRedoManager.Redo();
         RefreshDirtyState();
-        RefreshSelectedEntryUi();
-        SetStatus("Redo applied");
 
+        if (currentEntry is not null)
+        {
+            _selectedEntry = currentEntry;
+            UpdateSelectionUi(currentEntry);
+            RefreshPreview(currentEntry);
+            SelectNodeForEntry(currentEntry);
+        }
+        else
+        {
+            RefreshSelectedEntryUi();
+        }
+
+        SetStatus("Redo applied");
         RefreshUndoRedoUi();
     }
 
