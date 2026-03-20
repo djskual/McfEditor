@@ -2,6 +2,7 @@ using McfEditor.IO;
 using McfEditor.Models;
 using McfEditor.Settings;
 using McfEditor.UI.Dialogs;
+using McfEditor.UndoRedo;
 using McfEditor.Views;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -10,13 +11,22 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
+using System.Linq;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace McfEditor;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Window, INotifyPropertyChanged
 {
     public static readonly RoutedUICommand OpenMcfCommand =
         new("Open MCF", nameof(OpenMcfCommand), typeof(MainWindow));
+
+    public static readonly RoutedUICommand UndoProjectCommand =
+        new("Undo", nameof(UndoProjectCommand), typeof(MainWindow));
+
+    public static readonly RoutedUICommand RedoProjectCommand =
+        new("Redo", nameof(RedoProjectCommand), typeof(MainWindow)); 
 
     private readonly McfExtractionService _extractionService = new();
     private readonly McfCompressionService _compressionService = new();
@@ -27,9 +37,24 @@ public partial class MainWindow : Window
     private string? _pythonFolder;
     private bool _isBusy;
 
+    private readonly UndoRedoManager _undoRedoManager = new();
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public string UndoMenuHeader =>
+    _undoRedoManager.CanUndo && !string.IsNullOrWhiteSpace(_undoRedoManager.UndoDescription)
+        ? $"_Undo {_undoRedoManager.UndoDescription}"
+        : "_Undo";
+
+    public string RedoMenuHeader =>
+        _undoRedoManager.CanRedo && !string.IsNullOrWhiteSpace(_undoRedoManager.RedoDescription)
+            ? $"_Redo {_undoRedoManager.RedoDescription}"
+            : "_Redo"; 
+
     public MainWindow()
     {
         InitializeComponent();
+        DataContext = this;
 
         ImageList.ItemsSource = _visibleEntries;
 
@@ -38,19 +63,102 @@ public partial class MainWindow : Window
         ResetSelectionUi();
 
         CommandBindings.Add(new CommandBinding(OpenMcfCommand, async (_, __) => await OpenMcfAsync()));
+        CommandBindings.Add(new CommandBinding(UndoProjectCommand, Undo_CommandExecuted, Undo_CommandCanExecute));
+        CommandBindings.Add(new CommandBinding(RedoProjectCommand, Redo_CommandExecuted, Redo_CommandCanExecute));
+
         InputBindings.Add(new KeyBinding(OpenMcfCommand, new KeyGesture(Key.O, ModifierKeys.Control)));
+        InputBindings.Add(new KeyBinding(UndoProjectCommand, new KeyGesture(Key.Z, ModifierKeys.Control)));
+        InputBindings.Add(new KeyBinding(RedoProjectCommand, new KeyGesture(Key.Y, ModifierKeys.Control)));
 
         Loaded += async (_, __) =>
         {
             _pythonFolder = ResolvePythonFolder();
             SetStatus("Ready");
             UpdateWindowTitle();
+            RefreshUndoRedoUi();
 
             if (AppSettingsStore.Current.AutoCheckUpdatesOnStartup)
                 await CheckForUpdatesAsync(silentIfUpToDate: true, silentOnError: true);
         };
 
         Closing += (_, __) => PersistWindowPlacementToSettings();
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void RefreshDirtyState()
+    {
+        if (_project == null)
+            return;
+
+        _project.IsDirty = _project.Entries.Any(e => e.IsModified);
+        UpdateWindowTitle();
+    }
+
+    private void Undo_Click(object sender, RoutedEventArgs e)
+    {
+        PerformUndo();
+    }
+
+    private void Redo_Click(object sender, RoutedEventArgs e)
+    {
+        PerformRedo();
+    }
+
+    private void RefreshUndoRedoUi()
+    {
+        OnPropertyChanged(nameof(UndoMenuHeader));
+        OnPropertyChanged(nameof(RedoMenuHeader));
+        CommandManager.InvalidateRequerySuggested();
+    }
+
+    private void Undo_CommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = _undoRedoManager.CanUndo;
+    }
+
+    private void Redo_CommandCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = _undoRedoManager.CanRedo;
+    }
+
+    private void Undo_CommandExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        PerformUndo();
+    }
+
+    private void Redo_CommandExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        PerformRedo();
+    }
+
+    private void PerformUndo()
+    {
+        if (!_undoRedoManager.CanUndo)
+            return;
+
+        _undoRedoManager.Undo();
+        RefreshDirtyState();
+        RefreshSelectedEntryUi();
+        SetStatus("Undo applied");
+
+        RefreshUndoRedoUi();
+    }
+
+    private void PerformRedo()
+    {
+        if (!_undoRedoManager.CanRedo)
+            return;
+
+        _undoRedoManager.Redo();
+        RefreshDirtyState();
+        RefreshSelectedEntryUi();
+        SetStatus("Redo applied");
+
+        RefreshUndoRedoUi();
     }
 
     private void UpdateWindowTitle()

@@ -1,6 +1,7 @@
 using McfEditor.Settings;
 using System.IO;
 using System.Linq;
+using System.Windows.Input;
 
 namespace McfEditor;
 
@@ -28,6 +29,8 @@ public partial class MainWindow
         _project.IsDirty = false;
         _project.Entries.Clear();
         _visibleEntries.Clear();
+        _undoRedoManager.Clear();
+        RefreshUndoRedoUi();
 
         PreviewImage.Source = null;
         CurrentFileLabel.Text = "File: -";

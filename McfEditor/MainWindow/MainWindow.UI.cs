@@ -7,6 +7,8 @@ namespace McfEditor;
 
 public partial class MainWindow
 {
+    private McfImageEntry? _selectedEntry; 
+
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         RefreshVisibleEntries();
@@ -14,10 +16,12 @@ public partial class MainWindow
 
     private void ImageList_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (ImageList.SelectedItem is McfImageEntry entry)
+        _selectedEntry = ImageList.SelectedItem as McfImageEntry;
+
+        if (_selectedEntry is not null)
         {
-            UpdateSelectionUi(entry);
-            RefreshPreview(entry);
+            UpdateSelectionUi(_selectedEntry);
+            RefreshPreview(_selectedEntry);
         }
         else
         {
@@ -77,5 +81,20 @@ public partial class MainWindow
             PreviewImage.Source = null;
             PreviewHintText.Text = $"Preview error: {ex.Message}";
         }
+    }
+
+    private void RefreshSelectedEntryUi()
+    {
+        if (_selectedEntry is null)
+        {
+            ResetSelectionUi();
+            PreviewImage.Source = null;
+            return;
+        }
+
+        UpdateSelectionUi(_selectedEntry);
+        RefreshPreview(_selectedEntry);
+
+        ImageList.Items.Refresh();
     }
 }

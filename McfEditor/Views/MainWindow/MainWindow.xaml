@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:McfEditor"
         mc:Ignorable="d"
         Title="McfEditor"
         Width="1500"
@@ -11,6 +12,7 @@
         MinHeight="760"
         Background="{DynamicResource AppWindowBackgroundBrush}"
         Foreground="{DynamicResource AppTextBrush}">
+
     <DockPanel>
         <Menu DockPanel.Dock="Top"
               Background="{DynamicResource AppPanelBrush}"
@@ -25,11 +27,19 @@
                 <MenuItem Header="_Rebuild MCF..."
                           Click="RebuildMcf_Click"/>
                 <Separator/>
-                <MenuItem Header="Open _working folder"
+                <MenuItem Header="_Open working folder"
                           Click="OpenWorkingFolder_Click"/>
                 <Separator/>
-                <MenuItem Header="E_xit"
+                <MenuItem Header="_Exit"
                           Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="{Binding UndoMenuHeader}"
+                          Command="{x:Static local:MainWindow.UndoProjectCommand}"
+                          InputGestureText="Ctrl+Z"/>
+                <MenuItem Header="{Binding RedoMenuHeader}"
+                          Command="{x:Static local:MainWindow.RedoProjectCommand}"
+                          InputGestureText="Ctrl+Y"/>
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem Header="_Settings..."

@@ -1,12 +1,14 @@
 using McfEditor.Models;
 using McfEditor.Settings;
 using McfEditor.UI.Dialogs;
+using McfEditor.UndoRedo;
 using McfEditor.Views;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 
 namespace McfEditor;
 
@@ -90,6 +92,8 @@ public partial class MainWindow
             _project.OutputFilePath = null;
             _project.IsDirty = false;
             _project.Entries.Clear();
+            _undoRedoManager.Clear();
+            RefreshUndoRedoUi();
 
             foreach (var entry in manifest.Entries.OrderBy(x => x.Index))
                 _project.Entries.Add(entry);
@@ -105,6 +109,7 @@ public partial class MainWindow
             CurrentWorkLabel.Text = $"Workdir: {manifest.WorkingDirectory}";
             PreviewHintText.Text = $"Loaded {manifest.ImageCount} image(s).";
             UpdateWindowTitle();
+            RefreshUndoRedoUi();
 
             if (manifest.Warnings.Count > 0)
                 SetStatus($"Loaded with {manifest.Warnings.Count} warning(s).");
@@ -244,14 +249,20 @@ public partial class MainWindow
         if (dialog.ShowDialog(this) != true)
             return;
 
-        entry.ReplacementPath = dialog.FileName;
-        entry.IsModified = true;
-        _project.IsDirty = true;
-        UpdateWindowTitle();
+        var action = new ImageReplacementAction(
+            entry,
+            entry.ReplacementPath,
+            entry.IsModified,
+            dialog.FileName,
+            true);
 
-        UpdateSelectionUi(entry);
-        RefreshPreview(entry);
+        _undoRedoManager.Execute(action);
+
+        RefreshDirtyState();
+        RefreshSelectedEntryUi();
         SetStatus($"Replacement selected for image #{entry.Index}");
+
+        RefreshUndoRedoUi();
     }
 
     private void RestoreImage_Click(object sender, RoutedEventArgs e)
@@ -259,15 +270,23 @@ public partial class MainWindow
         if (ImageList.SelectedItem is not McfImageEntry entry)
             return;
 
-        entry.ReplacementPath = null;
-        entry.IsModified = false;
+        if (string.IsNullOrWhiteSpace(entry.ReplacementPath) && !entry.IsModified)
+            return;
 
-        _project.IsDirty = _project.Entries.Any(x => x.IsModified);
-        UpdateWindowTitle();
+        var action = new ImageReplacementAction(
+            entry,
+            entry.ReplacementPath,
+            entry.IsModified,
+            null,
+            false);
 
-        UpdateSelectionUi(entry);
-        RefreshPreview(entry);
+        _undoRedoManager.Execute(action);
+
+        RefreshDirtyState();
+        RefreshSelectedEntryUi();
         SetStatus($"Image #{entry.Index} restored to original");
+
+        RefreshUndoRedoUi();
     }
 
     private void OpenWorkingFolder_Click(object sender, RoutedEventArgs e)
