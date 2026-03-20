@@ -71,10 +71,17 @@
                             <Button Grid.Column="2" Content="Browse" Click="BrowsePython_Click"/>
                         </Grid>
 
-                        <CheckBox x:Name="ParseImageIdMapCheck"
+                        <CheckBox x:Name="UseImageIdMapWhenAvailableCheck"
                                   Style="{StaticResource LabeledCheckBoxStyle}"
-                                  Content="Parse imageidmap.res automatically when present"
-                                  Margin="0,14,0,0"/>
+                                  Content="Use imageidmap.res when available"
+                                  Margin="0,10,0,0"/>
+                        <CheckBox x:Name="AskBeforeUsingImageIdMapCheck"
+                                  Style="{StaticResource LabeledCheckBoxStyle}"
+                                  Content="Ask before using imageidmap.res"
+                                  Margin="0,10,0,0"/>
+                        <TextBlock Margin="0,12,0,0"
+                                   Foreground="{DynamicResource AppMutedTextBrush}"
+                                   Text="These options control whether imageidmap.res is used to organize extracted images and build the explorer tree."/>
                     </StackPanel>
 
                     <StackPanel x:Name="OutputPanel" Visibility="Collapsed">

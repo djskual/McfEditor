@@ -166,6 +166,10 @@ def main():
                 shutil.copy2(out_path, mapped_target)
                 break
 
+        relative_path = os.path.join("Unsorted", file_name)
+        if mapped_path:
+            relative_path = os.path.join("Images", mapped_path)
+
         entries.append(
             {
                 "index": image_id,
@@ -177,6 +181,7 @@ def main():
                 "zsize": int(zsize),
                 "extractedPath": str(out_path.resolve()),
                 "mappedPath": mapped_path,
+                "relativePath": relative_path,
             }
         )
 

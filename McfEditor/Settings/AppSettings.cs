@@ -4,15 +4,14 @@ public sealed class AppSettings
 {
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
     public bool IncludePrereleaseVersionsInUpdateCheck { get; set; } = false; 
-
     public bool RememberWindowSizeAndPosition { get; set; } = true;
     public double? WindowWidth { get; set; }
     public double? WindowHeight { get; set; }
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
-
     public string PythonExecutablePath { get; set; } = "python";
-    public bool ParseImageIdMapAutomatically { get; set; } = true;
+    public bool UseImageIdMapWhenAvailable { get; set; } = true;
+    public bool AskBeforeUsingImageIdMap { get; set; } = false; 
     public bool OpenWorkingFolderAfterExtraction { get; set; } = false;
     public string? DefaultOutputFolder { get; set; }
     public string? LastOpenedMcfPath { get; set; }
@@ -29,7 +28,8 @@ public sealed class AppSettings
             WindowLeft = WindowLeft,
             WindowTop = WindowTop,
             PythonExecutablePath = PythonExecutablePath,
-            ParseImageIdMapAutomatically = ParseImageIdMapAutomatically,
+            UseImageIdMapWhenAvailable = UseImageIdMapWhenAvailable,
+            AskBeforeUsingImageIdMap = AskBeforeUsingImageIdMap,
             OpenWorkingFolderAfterExtraction = OpenWorkingFolderAfterExtraction,
             DefaultOutputFolder = DefaultOutputFolder,
             LastOpenedMcfPath = LastOpenedMcfPath

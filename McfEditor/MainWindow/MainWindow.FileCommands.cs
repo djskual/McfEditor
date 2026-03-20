@@ -81,12 +81,33 @@ public partial class MainWindow
             PurgeTempRootDirectory();
 
             var workingDir = CreateWorkingDirectory(sourceFile);
+
+            var idMapPath = Path.Combine(Path.GetDirectoryName(sourceFile) ?? string.Empty, "imageidmap.res");
+            bool useImageIdMap = false;
+
+            if (File.Exists(idMapPath) && settings.UseImageIdMapWhenAvailable)
+            {
+                useImageIdMap = true;
+
+                if (settings.AskBeforeUsingImageIdMap)
+                {
+                    var result = AppMessageBox.Show(
+                        this,
+                        "imageidmap.res was found next to the selected MCF file.\n\nDo you want to use it to organize extracted images into folders?",
+                        "Use imageidmap.res",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    useImageIdMap = result == MessageBoxResult.Yes;
+                }
+            }
+
             var manifest = await _extractionService.ExtractAsync(
                 settings.PythonExecutablePath,
                 extractScript,
                 sourceFile,
                 workingDir,
-                settings.ParseImageIdMapAutomatically);
+                useImageIdMap);
 
             _project.SourceFilePath = sourceFile;
             _project.WorkingDirectory = manifest.WorkingDirectory;
@@ -117,8 +138,7 @@ public partial class MainWindow
             else
                 SetStatus($"Loaded {manifest.ImageCount} image(s).");
 
-            if (_visibleEntries.Count > 0)
-                ImageList.SelectedIndex = 0;
+            SelectFirstImageNode();
 
             if (settings.OpenWorkingFolderAfterExtraction && Directory.Exists(_project.WorkingDirectory))
                 Process.Start(new ProcessStartInfo { FileName = _project.WorkingDirectory, UseShellExecute = true });
@@ -237,8 +257,10 @@ public partial class MainWindow
 
     private void ReplaceImage_Click(object sender, RoutedEventArgs e)
     {
-        if (ImageList.SelectedItem is not McfImageEntry entry)
+        if (ImagesTreeView.SelectedItem is not ExplorerNode node || node.IsFolder || node.Entry is null)
             return;
+
+        var entry = node.Entry;
 
         var dialog = new OpenFileDialog
         {
@@ -268,8 +290,10 @@ public partial class MainWindow
 
     private void RestoreImage_Click(object sender, RoutedEventArgs e)
     {
-        if (ImageList.SelectedItem is not McfImageEntry entry)
+        if (ImagesTreeView.SelectedItem is not ExplorerNode node || node.IsFolder || node.Entry is null)
             return;
+
+        var entry = node.Entry;
 
         if (string.IsNullOrWhiteSpace(entry.ReplacementPath) && !entry.IsModified)
             return;

@@ -1,5 +1,6 @@
 using McfEditor.Models;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 
@@ -14,20 +15,21 @@ public partial class MainWindow
         RefreshVisibleEntries();
     }
 
-    private void ImageList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void ImagesTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        _selectedEntry = ImageList.SelectedItem as McfImageEntry;
-
-        if (_selectedEntry is not null)
+        if (e.NewValue is ExplorerNode node && !node.IsFolder && node.Entry is not null)
         {
+            _selectedEntry = node.Entry;
             UpdateSelectionUi(_selectedEntry);
             RefreshPreview(_selectedEntry);
+            return;
         }
-        else
-        {
-            ResetSelectionUi();
-            PreviewImage.Source = null;
-        }
+
+        _selectedEntry = null;
+        ResetSelectionUi();
+        PreviewImage.Source = null;
+        PreviewTitleText.Text = "Preview";
+        PreviewHintText.Text = "No image selected.";
     }
 
     private void UpdateSelectionUi(McfImageEntry entry)
@@ -54,6 +56,8 @@ public partial class MainWindow
         SelectedOffsetText.Text = "Offset: -";
         SelectedSizeText.Text = "Compressed size: -";
         SelectedPathText.Text = "Path: -";
+        PreviewTitleText.Text = "Preview";
+        PreviewHintText.Text = "No image selected.";
     }
 
     private void RefreshPreview(McfImageEntry entry)
@@ -95,6 +99,18 @@ public partial class MainWindow
         UpdateSelectionUi(_selectedEntry);
         RefreshPreview(_selectedEntry);
 
-        ImageList.Items.Refresh();
+        RefreshVisibleEntries();
+    }
+
+    private void SelectFirstImageNode()
+    {
+        var firstLeaf = FindFirstLeaf(_explorerNodes);
+        if (firstLeaf != null)
+        {
+            firstLeaf.IsSelected = true;
+            _selectedEntry = firstLeaf.Entry;
+            UpdateSelectionUi(_selectedEntry!);
+            RefreshPreview(_selectedEntry!);
+        }
     }
 }

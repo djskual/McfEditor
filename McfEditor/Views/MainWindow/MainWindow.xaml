@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:McfEditor"
+        xmlns:models="clr-namespace:McfEditor.Models"
         mc:Ignorable="d"
         Title="McfEditor"
         Width="1100"
@@ -131,9 +132,54 @@
                         </StackPanel>
 
                         <GroupBox Grid.Row="2" Header="Images">
-                            <ListBox x:Name="ImageList"
-                                     DisplayMemberPath="DisplayName"
-                                     SelectionChanged="ImageList_SelectionChanged"/>
+                            <Border Background="{DynamicResource AppPanelAltBrush}"
+        BorderBrush="{DynamicResource AppBorderBrush}"
+        BorderThickness="1"
+        CornerRadius="10"
+        Padding="4"
+        SnapsToDevicePixels="True">
+                                <TreeView x:Name="ImagesTreeView"
+              ItemsSource="{Binding ExplorerNodes}"
+              SelectedItemChanged="ImagesTreeView_SelectedItemChanged"
+              Style="{StaticResource DarkTreeViewStyle}">
+                                    <TreeView.Resources>
+                                        <HierarchicalDataTemplate DataType="{x:Type models:ExplorerNode}"
+                                      ItemsSource="{Binding Children}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Image Width="16"
+                           Height="16"
+                           Margin="0,0,6,0"
+                           VerticalAlignment="Center">
+                                                    <Image.Style>
+                                                        <Style TargetType="Image">
+                                                            <Setter Property="Source" Value="/Assets/image.png"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsFolder}" Value="True">
+                                                                    <Setter Property="Source" Value="/Assets/folder.png"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Image.Style>
+                                                </Image>
+
+                                                <TextBlock Text="{Binding Name}"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource AppTextBrush}"/>
+                                            </StackPanel>
+                                        </HierarchicalDataTemplate>
+                                    </TreeView.Resources>
+
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="TreeViewItem"
+                   BasedOn="{StaticResource DarkTreeViewItemStyle}">
+                                            <Setter Property="IsExpanded"
+                        Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                            <Setter Property="IsSelected"
+                        Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
+                                </TreeView>
+                            </Border>
                         </GroupBox>
                     </Grid>
                 </Border>

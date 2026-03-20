@@ -32,8 +32,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly McfCompressionService _compressionService = new();
 
     private readonly ObservableCollection<McfImageEntry> _visibleEntries = new();
+    private readonly ObservableCollection<ExplorerNode> _explorerNodes = new();
     private readonly McfProject _project = new();
-
     private string? _pythonFolder;
     private bool _isBusy;
 
@@ -51,12 +51,14 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             ? $"_Redo {_undoRedoManager.RedoDescription}"
             : "_Redo"; 
 
+    public ObservableCollection<ExplorerNode> ExplorerNodes => _explorerNodes;
+
     public MainWindow()
     {
         InitializeComponent();
         DataContext = this;
 
-        ImageList.ItemsSource = _visibleEntries;
+        ImagesTreeView.ItemsSource = _explorerNodes;
 
         ApplyWindowPlacementFromSettings();
         UpdateWindowTitle();
@@ -86,6 +88,21 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             PersistWindowPlacementToSettings();
             PurgeTempRootDirectory();
         };
+    }
+
+    private static ExplorerNode? FindFirstLeaf(IEnumerable<ExplorerNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (!node.IsFolder && node.Entry is not null)
+                return node;
+
+            var leaf = FindFirstLeaf(node.Children);
+            if (leaf is not null)
+                return leaf;
+        }
+
+        return null;
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

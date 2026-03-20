@@ -22,7 +22,8 @@ public partial class SettingsWindow : Window
 
         RememberWindowPlacementCheck.IsChecked = _workingCopy.RememberWindowSizeAndPosition;
         PythonPathTextBox.Text = _workingCopy.PythonExecutablePath;
-        ParseImageIdMapCheck.IsChecked = _workingCopy.ParseImageIdMapAutomatically;
+        UseImageIdMapWhenAvailableCheck.IsChecked = _workingCopy.UseImageIdMapWhenAvailable;
+        AskBeforeUsingImageIdMapCheck.IsChecked = _workingCopy.AskBeforeUsingImageIdMap;
         OpenWorkingFolderCheck.IsChecked = _workingCopy.OpenWorkingFolderAfterExtraction;
         DefaultOutputFolderTextBox.Text = _workingCopy.DefaultOutputFolder ?? string.Empty;
 
@@ -99,7 +100,8 @@ public partial class SettingsWindow : Window
         _workingCopy.PythonExecutablePath = string.IsNullOrWhiteSpace(PythonPathTextBox.Text)
             ? "python"
             : PythonPathTextBox.Text.Trim();
-        _workingCopy.ParseImageIdMapAutomatically = ParseImageIdMapCheck.IsChecked == true;
+        _workingCopy.UseImageIdMapWhenAvailable = UseImageIdMapWhenAvailableCheck.IsChecked == true;
+        _workingCopy.AskBeforeUsingImageIdMap = AskBeforeUsingImageIdMapCheck.IsChecked == true;
         _workingCopy.OpenWorkingFolderAfterExtraction = OpenWorkingFolderCheck.IsChecked == true;
         _workingCopy.DefaultOutputFolder = string.IsNullOrWhiteSpace(DefaultOutputFolderTextBox.Text)
             ? null

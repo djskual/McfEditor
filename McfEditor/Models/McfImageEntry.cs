@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
+using System.IO;
 
 namespace McfEditor.Models;
 
@@ -36,6 +37,9 @@ public sealed class McfImageEntry : INotifyPropertyChanged
 
     [JsonPropertyName("mappedPath")]
     public string? MappedPath { get; set; }
+
+    [JsonPropertyName("relativePath")]
+    public string RelativePath { get; set; } = string.Empty;
 
     [JsonIgnore]
     public string? ReplacementPath
@@ -79,6 +83,18 @@ public sealed class McfImageEntry : INotifyPropertyChanged
 
             _displayName = value;
             OnPropertyChanged();
+        }
+    }
+
+    [JsonIgnore]
+    public string LeafName
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(MappedPath))
+                return Path.GetFileName(MappedPath);
+
+            return FileName;
         }
     }
 

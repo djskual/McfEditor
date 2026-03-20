@@ -55,6 +55,11 @@ public sealed class McfExtractionService
             entry.DisplayName = string.IsNullOrWhiteSpace(entry.MappedPath)
                 ? entry.FileName
                 : entry.MappedPath!;
+
+            if (string.IsNullOrWhiteSpace(entry.RelativePath))
+                entry.RelativePath = string.IsNullOrWhiteSpace(entry.MappedPath)
+                    ? Path.Combine("Unsorted", entry.FileName)
+                    : Path.Combine("Images", entry.MappedPath!);
         }
 
         return manifest;

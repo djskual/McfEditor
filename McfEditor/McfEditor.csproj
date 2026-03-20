@@ -11,11 +11,19 @@
 
   <ItemGroup>
     <None Remove="Assets\app.ico" />
+    <None Remove="Assets\folder.png" />
+    <None Remove="Assets\image.png" />
     <None Remove="git-tag.txt" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Assets\app.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\folder.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\image.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
