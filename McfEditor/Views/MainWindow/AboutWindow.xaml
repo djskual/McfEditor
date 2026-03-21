@@ -2,46 +2,75 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="About McfEditor"
-        Width="520"
+        Width="540"
         Height="320"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource AppWindowBackgroundBrush}"
         Foreground="{DynamicResource AppTextBrush}">
-    <Grid Margin="18">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Border Background="{DynamicResource AppPanelBrush}"
-                BorderBrush="{DynamicResource AppBorderBrush}"
-                BorderThickness="1"
-                CornerRadius="14"
-                Padding="18">
-            <StackPanel>
+        <!-- Header -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Logo -->
+            <Image Source="pack://application:,,,/Assets/app.png"
+                   Width="70"
+                   Height="70"
+                   VerticalAlignment="Top"
+                   Margin="0,6,0,0"/>
+
+            <!-- Title + version -->
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
                 <TextBlock Text="McfEditor"
                            FontSize="24"
-                           FontWeight="SemiBold"/>
-                <TextBlock Text="MCF extraction, preview and rebuild tool for MIB2 image archives."
-                           Margin="0,8,0,0"
-                           TextWrapping="Wrap"/>
-                <TextBlock Text="Current status:"
-                           Margin="0,18,0,6"
-                           FontWeight="SemiBold"/>
-                <TextBlock Text="• Open an MCF file&#x0a;• Extract all images&#x0a;• Preview and replace PNGs&#x0a;• Rebuild a new MCF file&#x0a;• Settings, release script and notes included"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
-        </Border>
+                           FontWeight="Bold"/>
 
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    Margin="0,12,0,0">
-            <Button Content="OK"
-                    Width="90"
-                    IsDefault="True"
-                    Click="Ok_Click"/>
+                <TextBlock x:Name="VersionText"
+                           Margin="0,2,0,6"
+                           FontSize="14"/>
+
+                <TextBlock Text="MCF extraction, preview and rebuild tool for MIB2 image archives."
+                           FontSize="14"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Info -->
+        <StackPanel Grid.Row="2">
+            <Separator Margin="0,0,0,8"/>
+            <TextBlock Text="Author: djskual" Margin="0,0,0,6"/>
+            <TextBlock x:Name="FrameworkText" Margin="0,0,0,0"/>
+            <Separator Margin="0,8,0,8"/>
+
+            <TextBlock Margin="0,0,0,0">
+                <Run>Project page: </Run>
+                <Hyperlink Click="GithubLink_Click">
+                    github.com/djskual/McfEditor
+                </Hyperlink>
+            </TextBlock>
+
+            <TextBlock Text="For research and development purposes only."
+                       TextWrapping="Wrap"
+                       Margin="0,16,0,0"/>
         </StackPanel>
+
+        <!-- OK button -->
+        <Button Grid.Row="3"
+                Content="OK"
+                Width="90"
+                Height="28"
+                HorizontalAlignment="Right"
+                Margin="0,12,0,0"
+                Click="Ok_Click"/>
     </Grid>
 </Window>
