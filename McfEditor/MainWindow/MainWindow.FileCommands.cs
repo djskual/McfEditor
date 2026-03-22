@@ -251,6 +251,18 @@ public partial class MainWindow
         if (dialog.ShowDialog(this) != true)
             return;
 
+        var validationError = ValidateReplacementImage(entry, dialog.FileName);
+        if (!string.IsNullOrWhiteSpace(validationError))
+        {
+            AppMessageBox.Show(
+                this,
+                validationError,
+                "Invalid replacement image",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
         var action = new ImageReplacementAction(
             entry,
             entry.ReplacementPath,
@@ -358,6 +370,74 @@ public partial class MainWindow
         }.ShowDialog();
     }
 
+    private string? ValidateReplacementImage(McfImageEntry entry, string replacementPath)
+    {
+        if (string.IsNullOrWhiteSpace(replacementPath))
+            return "No replacement file was selected.";
+
+        if (!File.Exists(replacementPath))
+            return $"Replacement file not found:\n{replacementPath}";
+
+        PngCodec.PngInfo originalInfo;
+        PngCodec.PngInfo replacementInfo;
+
+        try
+        {
+            originalInfo = PngCodec.ReadPngInfo(entry.ExtractedPath);
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to read original image metadata.\n\n{ex.Message}";
+        }
+
+        try
+        {
+            replacementInfo = PngCodec.ReadPngInfo(replacementPath);
+        }
+        catch (Exception ex)
+        {
+            return $"Failed to read replacement image metadata.\n\n{ex.Message}";
+        }
+
+        if (replacementInfo.Width != originalInfo.Width || replacementInfo.Height != originalInfo.Height)
+        {
+            return
+                $"Invalid image size.\n\n" +
+                $"Expected: {originalInfo.Width}x{originalInfo.Height}\n" +
+                $"Found: {replacementInfo.Width}x{replacementInfo.Height}";
+        }
+
+        var expectedBitsPerPixel = entry.ImageMode switch
+        {
+            "L" => 8,
+            "RGBA" => 32,
+            _ => -1
+        };
+
+        if (expectedBitsPerPixel > 0 && replacementInfo.BitsPerPixel != expectedBitsPerPixel)
+        {
+            return
+                $"Invalid color depth.\n\n" +
+                $"Expected: {expectedBitsPerPixel} bpp ({entry.ImageMode})\n" +
+                $"Found: {replacementInfo.BitsPerPixel} bpp ({replacementInfo.PixelFormatName})";
+        }
+
+        var expectedDpiX = Math.Round(originalInfo.DpiX);
+        var expectedDpiY = Math.Round(originalInfo.DpiY);
+        var foundDpiX = Math.Round(replacementInfo.DpiX);
+        var foundDpiY = Math.Round(replacementInfo.DpiY);
+
+        if (expectedDpiX != foundDpiX || expectedDpiY != foundDpiY)
+        {
+            return
+                $"Invalid image resolution.\n\n" +
+                $"Expected: {expectedDpiX:0} x {expectedDpiY:0} DPI\n" +
+                $"Found: {foundDpiX:0} x {foundDpiY:0} DPI";
+        }
+
+        return null;
+    }
+
     private void PrepareReplacementFiles()
     {
         var unsortedDir = Path.Combine(_project.WorkingDirectory, "Unsorted");
@@ -367,6 +447,13 @@ public partial class MainWindow
         {
             if (string.IsNullOrWhiteSpace(entry.ReplacementPath))
                 continue;
+
+            var validationError = ValidateReplacementImage(entry, entry.ReplacementPath!);
+            if (!string.IsNullOrWhiteSpace(validationError))
+            {
+                throw new InvalidOperationException(
+                    $"Replacement image for entry #{entry.Index} is invalid.\n\n{validationError}");
+            }
 
             var destination = Path.Combine(unsortedDir, $"img_{entry.Index}.png");
             File.Copy(entry.ReplacementPath!, destination, overwrite: true);

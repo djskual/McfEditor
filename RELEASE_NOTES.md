@@ -2,6 +2,7 @@
 ## Added
 - Added application icon for improved integration with Windows (taskbar and window title).
 - Added icon in About window.
+- Validate replacement images before import and rebuild
 
 ## Improved
 - Updated About window with a cleaner layout consistent with GcaEditor.
@@ -12,6 +13,8 @@
 - Added full archive export to a user-selected folder.
 - Added support for choosing raw or structured export when imageidmap data is available.
 - Added a default export folder setting.
+- Replacement images must now match the original dimensions, color depth and DPI resolution.
+- Clear validation messages are shown when an invalid replacement image is selected.
 
 ## Fixed
 - Fixed tree view sorting for MCF archives loaded without imageidmap data.

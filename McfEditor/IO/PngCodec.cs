@@ -7,6 +7,29 @@ namespace McfEditor.IO;
 
 public static class PngCodec
 {
+    public sealed record PngInfo(
+    int Width,
+    int Height,
+    double DpiX,
+    double DpiY,
+    int BitsPerPixel,
+    string PixelFormatName);
+
+    public static PngInfo ReadPngInfo(string pngPath)
+    {
+        using var fs = File.OpenRead(pngPath);
+        var decoder = BitmapDecoder.Create(fs, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.OnLoad);
+        var frame = decoder.Frames[0];
+
+        return new PngInfo(
+            frame.PixelWidth,
+            frame.PixelHeight,
+            frame.DpiX,
+            frame.DpiY,
+            frame.Format.BitsPerPixel,
+            frame.Format.ToString());
+    }
+
     public static void SaveRawToPng(string outputPath, int width, int height, string mode, byte[] raw)
     {
         BitmapSource bitmap;
