@@ -53,11 +53,11 @@ After extraction, files are organized as follows:
 ```
 WorkingFolder/
 ├── Unsorted/
-│ ├── img_0.png
-│ ├── img_1.png
-│ └── ...
+│   ├── img_0.png
+│   ├── img_1.png
+│   └── ...
 └── Images/ (if imageidmap is used)
-└── structured paths...
+    └── structured paths...
 ```
 
 ---
