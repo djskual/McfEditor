@@ -182,16 +182,24 @@
                                     </TreeView.ItemContainerStyle>
 
                                     <TreeView.ContextMenu>
-                                        <ContextMenu x:Name="ImagesTreeContextMenu">
+                                        <ContextMenu x:Name="ImagesTreeContextMenu"
+                                                     Style="{StaticResource TreeContextMenuStyle}">
+                                            <ContextMenu.Resources>
+                                                <Style TargetType="{x:Type MenuItem}"
+                                                       BasedOn="{StaticResource TreeContextMenuItemStyle}"/>
+                                            </ContextMenu.Resources>
+
                                             <MenuItem x:Name="ExtractNodeMenuItem"
                                                         Header="Extract..."
                                                         Click="ExtractNode_Click"/>
+
                                             <MenuItem x:Name="ExtractFolderMenuItem"
-                                                        Header="Extract folder..."
-                                                        Click="ExtractFolder_Click"/>
+                                                      Header="Extract folder..."
+                                                      Click="ExtractFolder_Click"/>
+
                                             <MenuItem x:Name="ExtractImageMenuItem"
-                                                        Header="Extract image..."
-                                                        Click="ExtractImage_Click"/>
+                                                      Header="Extract image..."
+                                                      Click="ExtractImage_Click"/>
                                         </ContextMenu>
                                     </TreeView.ContextMenu>
                                 </TreeView>
