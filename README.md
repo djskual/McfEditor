@@ -50,6 +50,7 @@ If an `imageidmap.res` file is present next to the MCF file, McfEditor will:
 
 After extraction, files are organized as follows:
 
+```
 WorkingFolder/
 ├── Unsorted/
 │ ├── img_0.png
@@ -57,7 +58,7 @@ WorkingFolder/
 │ └── ...
 └── Images/ (if imageidmap is used)
 └── structured paths...
-
+```
 
 ---
 
