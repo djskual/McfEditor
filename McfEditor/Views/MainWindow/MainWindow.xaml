@@ -24,7 +24,7 @@
                           InputGestureText="Ctrl+O"
                           Click="OpenMcf_Click"/>
                 <Separator/>
-                <MenuItem Header="_Extract / reload"
+                <MenuItem Header="_Extract all..."
                           Click="ExtractAll_Click"/>
                 <MenuItem Header="_Rebuild MCF..."
                           Click="RebuildMcf_Click"/>
@@ -140,6 +140,7 @@
                                 <TreeView x:Name="ImagesTreeView"
                                           ItemsSource="{Binding ExplorerNodes}"
                                           SelectedItemChanged="ImagesTreeView_SelectedItemChanged"
+                                          ContextMenuOpening="ImagesTreeView_ContextMenuOpening"
                                           Style="{StaticResource DarkTreeViewStyle}">
                                     <TreeView.Resources>
                                         <HierarchicalDataTemplate DataType="{x:Type models:ExplorerNode}"
@@ -172,11 +173,27 @@
                                         <Style TargetType="TreeViewItem"
                                                BasedOn="{StaticResource DarkTreeViewItemStyle}">
                                             <Setter Property="IsExpanded"
-                        Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                                                    Value="{Binding IsExpanded, Mode=TwoWay}"/>
                                             <Setter Property="IsSelected"
-                        Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                                    Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                            <EventSetter Event="PreviewMouseRightButtonDown"
+                                                         Handler="TreeViewItem_PreviewMouseRightButtonDown"/>
                                         </Style>
                                     </TreeView.ItemContainerStyle>
+
+                                    <TreeView.ContextMenu>
+                                        <ContextMenu x:Name="ImagesTreeContextMenu">
+                                            <MenuItem x:Name="ExtractNodeMenuItem"
+                                                        Header="Extract..."
+                                                        Click="ExtractNode_Click"/>
+                                            <MenuItem x:Name="ExtractFolderMenuItem"
+                                                        Header="Extract folder..."
+                                                        Click="ExtractFolder_Click"/>
+                                            <MenuItem x:Name="ExtractImageMenuItem"
+                                                        Header="Extract image..."
+                                                        Click="ExtractImage_Click"/>
+                                        </ContextMenu>
+                                    </TreeView.ContextMenu>
                                 </TreeView>
                             </Border>
                         </GroupBox>
@@ -270,6 +287,7 @@
                         <StackPanel Grid.Row="10">
                             <Button Content="Replace image..." Click="ReplaceImage_Click"/>
                             <Button Content="Restore original" Margin="0,8,0,0" Click="RestoreImage_Click"/>
+                            <Button Content="Extract image..." Margin="0,8,0,0" Click="ExtractImage_Click"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="12">

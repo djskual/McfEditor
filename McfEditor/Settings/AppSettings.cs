@@ -13,6 +13,7 @@ public sealed class AppSettings
     public bool AskBeforeUsingImageIdMap { get; set; } = false; 
     public bool OpenWorkingFolderAfterExtraction { get; set; } = false;
     public string? DefaultOutputFolder { get; set; }
+    public string? DefaultExportFolder { get; set; }
     public string? LastOpenedMcfPath { get; set; }
 
     public AppSettings Clone()
@@ -30,6 +31,7 @@ public sealed class AppSettings
             AskBeforeUsingImageIdMap = AskBeforeUsingImageIdMap,
             OpenWorkingFolderAfterExtraction = OpenWorkingFolderAfterExtraction,
             DefaultOutputFolder = DefaultOutputFolder,
+            DefaultExportFolder = DefaultExportFolder,
             LastOpenedMcfPath = LastOpenedMcfPath
         };
     }
@@ -40,6 +42,11 @@ public sealed class AppSettings
             DefaultOutputFolder = null;
         else
             DefaultOutputFolder = DefaultOutputFolder.Trim();
+
+        if (string.IsNullOrWhiteSpace(DefaultExportFolder))
+            DefaultExportFolder = null;
+        else
+            DefaultExportFolder = DefaultExportFolder.Trim();
 
         if (string.IsNullOrWhiteSpace(LastOpenedMcfPath))
             LastOpenedMcfPath = null;

@@ -94,6 +94,26 @@
                             <TextBox x:Name="DefaultOutputFolderTextBox" Grid.Column="0" Height="32" VerticalContentAlignment="Center"/>
                             <Button Grid.Column="2" Content="Browse" Click="BrowseOutputFolder_Click"/>
                         </Grid>
+
+                        <TextBlock Text="Default export folder"
+                                   Margin="0,14,0,6"
+                                   Foreground="{DynamicResource AppMutedTextBrush}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="DefaultExportFolderTextBox"
+                                     Grid.Column="0"
+                                     Height="32"
+                                     VerticalContentAlignment="Center"/>
+                            <Button Grid.Column="2"
+                                    MinWidth="90"
+                                    Content="Browse..."
+                                    Click="BrowseDefaultExportFolder_Click"/>
+                        </Grid>
                     </StackPanel>
 
                     <StackPanel x:Name="UpdatesPanel" Visibility="Collapsed">

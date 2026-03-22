@@ -2,16 +2,66 @@ using McfEditor.Models;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace McfEditor;
 
 public partial class MainWindow
 {
+    private void TreeViewItem_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not TreeViewItem item)
+            return;
+
+        item.IsSelected = true;
+        item.Focus();
+
+        if (item.DataContext is ExplorerNode node)
+            _contextMenuNode = node;
+        else
+            _contextMenuNode = null;
+    }
+
+    private void ImagesTreeView_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        var node = _contextMenuNode;
+
+        if (node is null && ImagesTreeView.SelectedItem is ExplorerNode selectedNode)
+            node = selectedNode;
+
+        if (node is null)
+        {
+            if (ImagesTreeContextMenu is not null)
+                ImagesTreeContextMenu.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        if (ImagesTreeContextMenu is not null)
+            ImagesTreeContextMenu.Visibility = Visibility.Visible;
+
+        if (node.IsFolder)
+        {
+            ExtractNodeMenuItem.Visibility = Visibility.Visible;
+            ExtractNodeMenuItem.Header = "Extract folder...";
+            ExtractFolderMenuItem.Visibility = Visibility.Collapsed;
+            ExtractImageMenuItem.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            ExtractNodeMenuItem.Visibility = Visibility.Visible;
+            ExtractNodeMenuItem.Header = "Extract image...";
+            ExtractFolderMenuItem.Visibility = Visibility.Collapsed;
+            ExtractImageMenuItem.Visibility = Visibility.Collapsed;
+        }
+    }
+
     private McfImageEntry? _selectedEntry; 
 
     private void ImagesTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
     {
+        _contextMenuNode = null;
+
         if (e.NewValue is ExplorerNode node && !node.IsFolder && node.Entry is not null)
         {
             _selectedEntry = node.Entry;

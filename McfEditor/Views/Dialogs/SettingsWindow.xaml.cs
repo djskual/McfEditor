@@ -25,7 +25,7 @@ public partial class SettingsWindow : Window
         AskBeforeUsingImageIdMapCheck.IsChecked = _workingCopy.AskBeforeUsingImageIdMap;
         OpenWorkingFolderCheck.IsChecked = _workingCopy.OpenWorkingFolderAfterExtraction;
         DefaultOutputFolderTextBox.Text = _workingCopy.DefaultOutputFolder ?? string.Empty;
-
+        DefaultExportFolderTextBox.Text = _workingCopy.DefaultExportFolder ?? string.Empty;
         AutoCheckUpdatesCheck.IsChecked = _workingCopy.AutoCheckUpdatesOnStartup;
         IncludePrereleaseCheck.IsChecked = _workingCopy.IncludePrereleaseVersionsInUpdateCheck;
 
@@ -80,6 +80,13 @@ public partial class SettingsWindow : Window
             DefaultOutputFolderTextBox.Text = folder;
     }
 
+    private void BrowseDefaultExportFolder_Click(object sender, RoutedEventArgs e)
+    {
+        var folder = FolderPicker.PickFolder("Select default export folder");
+        if (!string.IsNullOrWhiteSpace(folder))
+            DefaultExportFolderTextBox.Text = folder;
+    }
+
     private void Save_Click(object sender, RoutedEventArgs e)
     {
         _workingCopy.RememberWindowSizeAndPosition = RememberWindowPlacementCheck.IsChecked == true;
@@ -89,6 +96,9 @@ public partial class SettingsWindow : Window
         _workingCopy.DefaultOutputFolder = string.IsNullOrWhiteSpace(DefaultOutputFolderTextBox.Text)
             ? null
             : DefaultOutputFolderTextBox.Text.Trim();
+        _workingCopy.DefaultExportFolder = string.IsNullOrWhiteSpace(DefaultExportFolderTextBox.Text)
+            ? null
+            : DefaultExportFolderTextBox.Text.Trim();
         _workingCopy.AutoCheckUpdatesOnStartup = AutoCheckUpdatesCheck.IsChecked == true;
         _workingCopy.IncludePrereleaseVersionsInUpdateCheck = IncludePrereleaseCheck.IsChecked == true;
 

@@ -2,6 +2,7 @@ using McfEditor.IO;
 using McfEditor.Models;
 using McfEditor.Settings;
 using McfEditor.UI.Dialogs;
+using McfEditor.UI.Interop;
 using McfEditor.UndoRedo;
 using McfEditor.Views;
 using Microsoft.Win32;
@@ -147,20 +148,6 @@ public partial class MainWindow
             return;
 
         await OpenMcfAsync();
-    }
-
-    private async void ExtractAll_Click(object sender, RoutedEventArgs e)
-    {
-        if (_isBusy)
-            return;
-        
-        if (string.IsNullOrWhiteSpace(_project.SourceFilePath))
-        {
-            await OpenMcfAsync();
-            return;
-        }
-
-        await OpenMcfInternalAsync(_project.SourceFilePath);
     }
 
     private async void RebuildMcf_Click(object sender, RoutedEventArgs e)
@@ -383,6 +370,277 @@ public partial class MainWindow
 
             var destination = Path.Combine(unsortedDir, $"img_{entry.Index}.png");
             File.Copy(entry.ReplacementPath!, destination, overwrite: true);
+        }
+    }
+
+    private async void ExtractImage_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isBusy)
+            return;
+
+        ExplorerNode? node;
+
+        if (sender == ExtractImageMenuItem)
+            node = _contextMenuNode ?? ImagesTreeView.SelectedItem as ExplorerNode;
+        else
+            node = ImagesTreeView.SelectedItem as ExplorerNode;
+
+        if (node is null || node.Entry is null || node.IsFolder)
+            return;
+
+        var targetFolder = ChooseExportFolder("Select export folder for image");
+        if (string.IsNullOrWhiteSpace(targetFolder))
+            return;
+
+        var relativePath = node.Entry.LeafName;
+        await ExportEntriesAsync(
+            new List<(McfImageEntry, string)> { (node.Entry, relativePath) },
+            targetFolder,
+            "Exporting image...");
+
+        _contextMenuNode = null;
+    }
+
+    private async void ExtractFolder_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isBusy)
+            return;
+
+        var node = _contextMenuNode ?? ImagesTreeView.SelectedItem as ExplorerNode;
+        if (node is null || !node.IsFolder)
+            return;
+
+        var targetParentFolder = ChooseExportFolder($"Select export destination for '{node.Name}'");
+        if (string.IsNullOrWhiteSpace(targetParentFolder))
+            return;
+
+        // Force creation of the clicked folder itself inside the selected destination
+        var exportRoot = Path.Combine(targetParentFolder, node.Name);
+
+        var rootPath = node.FullPath.Replace('/', Path.DirectorySeparatorChar).Trim(Path.DirectorySeparatorChar);
+
+        var items = CollectLeafNodesFromNode(node)
+            .Select(leaf =>
+            {
+                var leafPath = leaf.FullPath.Replace('/', Path.DirectorySeparatorChar).Trim(Path.DirectorySeparatorChar);
+
+                string relativeInsideFolder;
+
+                if (!string.IsNullOrWhiteSpace(rootPath) &&
+                    leafPath.StartsWith(rootPath + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                {
+                    relativeInsideFolder = leafPath.Substring(rootPath.Length + 1);
+                }
+                else
+                {
+                    relativeInsideFolder = leaf.Name;
+                }
+
+                return (leaf.Entry!, relativeInsideFolder);
+            })
+            .ToList();
+
+        await ExportEntriesAsync(items, exportRoot, $"Exporting folder '{node.Name}'...");
+
+        _contextMenuNode = null;
+    }
+
+    private void ExtractNode_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isBusy)
+            return;
+
+        var node = _contextMenuNode ?? ImagesTreeView.SelectedItem as ExplorerNode;
+        if (node is null)
+            return;
+
+        if (node.IsFolder)
+        {
+            ExtractFolder_Click(sender, e);
+            return;
+        }
+
+        ExtractImage_Click(sender, e);
+    }
+
+    private async void ExtractAll_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isBusy)
+            return;
+
+        if (_project.Entries.Count == 0)
+        {
+            AppMessageBox.Show(
+                this,
+                "Open an MCF file first.",
+                "McfEditor",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+            return;
+        }
+
+        var targetFolder = ChooseExportFolder("Select export folder");
+        if (string.IsNullOrWhiteSpace(targetFolder))
+            return;
+
+        var mode = AskExportModeForAll();
+        if (mode is null)
+            return;
+
+        var items = _project.Entries
+            .OrderBy(e => e.Index)
+            .Select(entry => (entry, GetEntryExportRelativePath(entry, mode.Value)))
+            .ToList();
+
+        await ExportEntriesAsync(items, targetFolder, "Exporting all images...");
+    }
+    private enum ExportMode
+    {
+        Raw,
+        Structured
+    }
+
+    private string? ChooseExportFolder(string title)
+    {
+        var initialPath = AppSettingsStore.Current.DefaultExportFolder;
+
+        var folder = FolderPicker.PickFolder(title);
+
+        if (string.IsNullOrWhiteSpace(folder))
+            return null;
+
+        return folder;
+    }
+
+    private ExportMode? AskExportModeForAll()
+    {
+        bool hasMappedPaths = _project.Entries.Any(e => !string.IsNullOrWhiteSpace(e.MappedPath));
+        if (!hasMappedPaths)
+            return ExportMode.Raw;
+
+        var result = AppMessageBox.Show(
+            this,
+            "Structured image paths are available from imageidmap.res.\n\n" +
+            "Yes = export structured folders\n" +
+            "No = export raw img_<index>.png files\n" +
+            "Cancel = abort",
+            "Extract all",
+            MessageBoxButton.YesNoCancel,
+            MessageBoxImage.Question);
+
+        return result switch
+        {
+            MessageBoxResult.Yes => ExportMode.Structured,
+            MessageBoxResult.No => ExportMode.Raw,
+            _ => null
+        };
+    }
+
+    private static string GetEntryExportRelativePath(McfImageEntry entry, ExportMode mode)
+    {
+        if (mode == ExportMode.Structured && !string.IsNullOrWhiteSpace(entry.MappedPath))
+            return entry.MappedPath!.Replace('/', Path.DirectorySeparatorChar);
+
+        return $"img_{entry.Index}.png";
+    }
+
+    private static IEnumerable<McfImageEntry> CollectEntriesFromNode(ExplorerNode node)
+    {
+        if (!node.IsFolder && node.Entry is not null)
+        {
+            yield return node.Entry;
+            yield break;
+        }
+
+        foreach (var child in node.Children)
+        {
+            foreach (var entry in CollectEntriesFromNode(child))
+                yield return entry;
+        }
+    }
+
+    private static IEnumerable<ExplorerNode> CollectLeafNodesFromNode(ExplorerNode node)
+    {
+        if (!node.IsFolder && node.Entry is not null)
+        {
+            yield return node;
+            yield break;
+        }
+
+        foreach (var child in node.Children)
+        {
+            foreach (var leaf in CollectLeafNodesFromNode(child))
+                yield return leaf;
+        }
+    }
+
+    private async Task ExportEntriesAsync(
+    IReadOnlyList<(McfImageEntry Entry, string RelativePath)> items,
+    string targetFolder,
+    string progressLabel)
+    {
+        if (items.Count == 0)
+            return;
+
+        SetBusy(true, progressLabel);
+        ShowProgress(progressLabel, 0);
+
+        try
+        {
+            int copiedCount = 0;
+
+            await Task.Run(() =>
+            {
+                Directory.CreateDirectory(targetFolder);
+
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    var sourcePath = item.Entry.PreviewPath;
+
+                    if (string.IsNullOrWhiteSpace(sourcePath))
+                        throw new InvalidOperationException($"Entry #{item.Entry.Index} has no source file to export.");
+
+                    if (!File.Exists(sourcePath))
+                        throw new FileNotFoundException(
+                            $"Source file not found for entry #{item.Entry.Index}.",
+                            sourcePath);
+
+                    var destinationPath = Path.Combine(targetFolder, item.RelativePath);
+                    var destinationDir = Path.GetDirectoryName(destinationPath);
+
+                    if (!string.IsNullOrWhiteSpace(destinationDir))
+                        Directory.CreateDirectory(destinationDir);
+
+                    File.Copy(sourcePath, destinationPath, true);
+                    copiedCount++;
+
+                    double percent = ((i + 1) * 100.0) / items.Count;
+                    Dispatcher.Invoke(() =>
+                    {
+                        ShowProgress($"{progressLabel} ({i + 1}/{items.Count})", percent);
+                    });
+                }
+            });
+
+            if (copiedCount == 0)
+                throw new InvalidOperationException("No files were exported.");
+
+            HideProgress($"Exported {copiedCount} item(s) to '{targetFolder}'.");
+        }
+        catch (Exception ex)
+        {
+            HideProgress("Export failed.");
+            AppMessageBox.Show(
+                this,
+                ex.Message,
+                "Export failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            SetBusy(false);
         }
     }
 }

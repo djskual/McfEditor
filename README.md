@@ -1,91 +1,103 @@
 # McfEditor
 
-**McfEditor** is a WPF desktop tool for extracting, previewing, replacing and rebuilding **MIB2 `.mcf` image archives**.
+McfEditor is a Windows tool for extracting, inspecting, modifying and rebuilding MCF image archives used in Volkswagen MIB systems.
 
-This startup package was prepared to mirror the structure and visual style of your **GcaEditor** project as closely as possible, so you can drop it next to your current repo, open it in **Visual Studio 2022**, and keep iterating from a familiar base.
+The application provides a modern WPF interface and a fully native C# backend.
 
-## Current startup scope
+---
 
-This first package already includes:
+## Screenshot
 
-- the same dark theme base as GcaEditor
-- a similar solution layout and release workflow
-- MCF extraction
-- image list + search
-- preview panel
-- replace / restore workflow
-- rebuild to a new `.mcf`
-- settings window
-- themed message box
-- release script and release notes template
+![McfEditor](docs/McfEditor.png)
 
-## Project structure
+---
 
-```text
-McfEditor/
-├── McfEditor.sln
-├── README.md
-├── RELEASE_NOTES.md
-├── release.ps1
-└── McfEditor/
-    ├── Assets/
-    ├── Data/
-    ├── IO/
-    ├── MainWindow/
-    ├── Models/
-    ├── Settings/
-    ├── Themes/
-    ├── UI/
-    ├── ViewModels/
-    └── Views/
-```
+## Features
+
+- Open and extract MCF archives
+- Preview images with metadata (dimensions, format, offset, size)
+- Browse images using a hierarchical tree view
+- Support for imageidmap.res (structured paths)
+- Replace images directly from the UI
+- Restore original images
+- Undo / Redo support
+- Rebuild modified MCF archives
+- Real-time progress reporting
+- No external dependencies (no Python)
+
+---
+
+## Usage
+
+1. Open an MCF file from the File menu  
+2. Browse images using the tree view  
+3. Select an image to preview it  
+4. Replace or restore images  
+5. Rebuild the archive when finished  
+
+---
+
+## ImageIdMap support
+
+If an `imageidmap.res` file is present next to the MCF file, McfEditor will:
+
+- Reconstruct the original folder structure  
+- Display meaningful paths instead of raw indices  
+
+---
+
+## Output structure
+
+After extraction, files are organized as follows:
+
+WorkingFolder/
+├── Unsorted/
+│ ├── img_0.png
+│ ├── img_1.png
+│ └── ...
+└── Images/ (if imageidmap is used)
+└── structured paths...
+
+
+---
+
+## Supported formats
+
+- Grayscale (L)  
+- RGBA  
+
+Some MCF variants may contain unsupported formats.
+
+---
 
 ## Requirements
 
-- Visual Studio 2022
-- .NET 8 SDK
+- Windows 10 / 11  
+- .NET Desktop Runtime  
 
-## First run
-
-1. Open `McfEditor.sln` in Visual Studio 2022.
-2. Restore NuGet packages if Visual Studio asks.
-3. Build and run the project.
-4. Open an `.mcf` file.
-5. The app extracts images into a temporary working folder.
-6. Replace one or more `img_<index>.png` files through the UI.
-7. Rebuild a new `.mcf`.
+---
 
 ## Notes
 
-McfEditor now uses a fully native C# backend for MCF extraction, imageidmap parsing and rebuild.
-No external Python installation is required.
-- This package is meant as a **clean starting point**, not a finished editor.
-- I could not compile-test the project in this environment, so the first Visual Studio pass should be treated as the real validation step.
+- Always keep a backup of original files  
+- Rebuild operations overwrite output files  
 
-## Suggested roadmap
+---
 
-### v0.1.0
-- open / extract MCF
-- preview images
-- replace and restore PNGs
-- rebuild MCF
-- validate startup workflow
+## Development
 
-### v0.1.1
-- dimension / mode validation before replace
-- drag & drop image replacement
-- remember more workspace state
-- better rebuild logging
+- C#  
+- WPF (.NET)  
+- Native binary parsing  
 
-### v0.2.0
-- native C# parsing for headers / manifest generation
-- stronger validation and diagnostics
-- diff / compare before-after preview
+---
 
-## Disclaimer
+## License
 
-This project is intended for research and development purposes only.
+This project is provided for educational and research purposes.
 
-It is not affiliated with or endorsed by Volkswagen AG.
+---
 
-Use at your own risk when modifying files used in vehicle systems.
+## Repository
+
+https://github.com/djskual/McfEditor

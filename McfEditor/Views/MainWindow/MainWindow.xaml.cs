@@ -36,6 +36,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly McfProject _project = new();
     private bool _isBusy;
 
+    private ExplorerNode? _contextMenuNode;
+
     private readonly UndoRedoManager _undoRedoManager = new();
 
     public event PropertyChangedEventHandler? PropertyChanged;
