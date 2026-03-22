@@ -273,8 +273,6 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="10"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="10"/>
-                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Properties"
@@ -296,11 +294,6 @@
                             <Button Content="Replace image..." Click="ReplaceImage_Click"/>
                             <Button Content="Restore original" Margin="0,8,0,0" Click="RestoreImage_Click"/>
                             <Button Content="Extract image..." Margin="0,8,0,0" Click="ExtractImage_Click"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Row="12">
-                            <Button Content="Open working folder" Click="OpenWorkingFolder_Click"/>
-                            <Button Content="Rebuild MCF..." Margin="0,8,0,0" Click="RebuildMcf_Click"/>
                         </StackPanel>
                     </Grid>
                 </Border>

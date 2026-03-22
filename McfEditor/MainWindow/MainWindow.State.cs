@@ -40,9 +40,17 @@ public partial class MainWindow
     {
         _explorerNodes.Clear();
 
-        foreach (var entry in entries
-                     .OrderBy(e => string.IsNullOrWhiteSpace(e.RelativePath) ? e.FileName : e.RelativePath,
-                              StringComparer.OrdinalIgnoreCase))
+        var entryList = entries.ToList();
+        bool hasStructuredPaths = entryList.Any(e => !string.IsNullOrWhiteSpace(e.MappedPath));
+
+        var orderedEntries = hasStructuredPaths
+            ? entryList
+                .OrderBy(e => string.IsNullOrWhiteSpace(e.RelativePath) ? e.FileName : e.RelativePath,
+                         StringComparer.OrdinalIgnoreCase)
+            : entryList
+                .OrderBy(e => e.Index);
+
+        foreach (var entry in orderedEntries)
         {
             var relativePath = string.IsNullOrWhiteSpace(entry.RelativePath)
                 ? entry.FileName
@@ -88,10 +96,23 @@ public partial class MainWindow
 
     private static void SortExplorerNodes(ObservableCollection<ExplorerNode> nodes)
     {
-        var ordered = nodes
-            .OrderByDescending(n => n.IsFolder)
-            .ThenBy(n => n.Name, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        bool allImageLeaves = nodes.Count > 0 && nodes.All(n => !n.IsFolder && n.Entry is not null);
+
+        List<ExplorerNode> ordered;
+
+        if (allImageLeaves)
+        {
+            ordered = nodes
+                .OrderBy(n => n.Entry!.Index)
+                .ToList();
+        }
+        else
+        {
+            ordered = nodes
+                .OrderByDescending(n => n.IsFolder)
+                .ThenBy(n => n.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
 
         nodes.Clear();
 
@@ -155,10 +176,17 @@ public partial class MainWindow
 
     private void RefreshVisibleEntries()
     {
-        var filtered = _project.Entries
-            .OrderBy(x => string.IsNullOrWhiteSpace(x.RelativePath) ? x.FileName : x.RelativePath,
-                     StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        bool hasStructuredPaths = _project.Entries.Any(x =>
+            !string.IsNullOrWhiteSpace(x.MappedPath));
+
+        var filtered = hasStructuredPaths
+            ? _project.Entries
+                .OrderBy(x => string.IsNullOrWhiteSpace(x.RelativePath) ? x.FileName : x.RelativePath,
+                         StringComparer.OrdinalIgnoreCase)
+                .ToList()
+            : _project.Entries
+                .OrderBy(x => x.Index)
+                .ToList();
 
         RebuildExplorerTree(filtered);
     }

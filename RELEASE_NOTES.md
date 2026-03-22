@@ -14,5 +14,7 @@
 - Added a default export folder setting.
 
 ## Fixed
+- Fixed tree view sorting for MCF archives loaded without imageidmap data.
+- Raw extracted images are now ordered by numeric index instead of alphabetical filename order.
 
 ## Cleanup
